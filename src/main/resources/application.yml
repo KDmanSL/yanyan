@@ -1,1 +1,7 @@
-spring.application.name=yanyan
+Spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://119.3.158.9:3306/yanyan?useSSL=false&useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: yanyan
+    password: yanyan
+    type: com.alibaba.druid.pool.DruidDataSource
