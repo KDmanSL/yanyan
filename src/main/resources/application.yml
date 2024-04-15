@@ -17,6 +17,9 @@ Spring:
           time-between-eviction-runs: 10s
   jackson:
     default-property-inclusion: non_null # JSON处理时忽略非空字段
+  ai:
+    openai:
+      api-key: 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
 logging:
   level:
     com.yanyan: debug
