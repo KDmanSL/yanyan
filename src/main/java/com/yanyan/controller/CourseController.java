@@ -14,6 +14,11 @@ public class CourseController {
     @Resource
     CourseService courseService;
 
+    /**
+     * 根据id查询课程
+     * @param id 课程id
+     * @return 课程信息
+     */
     @GetMapping(value = "/{id}")
     public Result queryCourseById(@PathVariable("id") Long id){
         return courseService.queryCourseById(id);
