@@ -46,6 +46,11 @@ public class School implements Serializable {
     private String officialwebsite;
 
     /**
+     * 0为非211,1为211
+     */
+    private Integer is211;
+
+    /**
      * 
      */
     private String imgUrl;
@@ -71,6 +76,7 @@ public class School implements Serializable {
             && (this.getRanking() == null ? other.getRanking() == null : this.getRanking().equals(other.getRanking()))
             && (this.getDescription() == null ? other.getDescription() == null : this.getDescription().equals(other.getDescription()))
             && (this.getOfficialwebsite() == null ? other.getOfficialwebsite() == null : this.getOfficialwebsite().equals(other.getOfficialwebsite()))
+            && (this.getIs211() == null ? other.getIs211() == null : this.getIs211().equals(other.getIs211()))
             && (this.getImgUrl() == null ? other.getImgUrl() == null : this.getImgUrl().equals(other.getImgUrl()));
     }
 
@@ -84,6 +90,7 @@ public class School implements Serializable {
         result = prime * result + ((getRanking() == null) ? 0 : getRanking().hashCode());
         result = prime * result + ((getDescription() == null) ? 0 : getDescription().hashCode());
         result = prime * result + ((getOfficialwebsite() == null) ? 0 : getOfficialwebsite().hashCode());
+        result = prime * result + ((getIs211() == null) ? 0 : getIs211().hashCode());
         result = prime * result + ((getImgUrl() == null) ? 0 : getImgUrl().hashCode());
         return result;
     }
@@ -100,6 +107,7 @@ public class School implements Serializable {
         sb.append(", ranking=").append(ranking);
         sb.append(", description=").append(description);
         sb.append(", officialwebsite=").append(officialwebsite);
+        sb.append(", is211=").append(is211);
         sb.append(", imgUrl=").append(imgUrl);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");

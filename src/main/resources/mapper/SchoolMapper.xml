@@ -11,12 +11,13 @@
             <result property="ranking" column="ranking" jdbcType="BIGINT"/>
             <result property="description" column="description" jdbcType="VARCHAR"/>
             <result property="officialwebsite" column="officialWebsite" jdbcType="VARCHAR"/>
+            <result property="is211" column="is_211" jdbcType="TINYINT"/>
             <result property="imgUrl" column="img_url" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,name,location,
         ranking,description,officialWebsite,
-        img_url
+        is_211,img_url
     </sql>
 </mapper>
