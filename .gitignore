@@ -36,4 +36,4 @@ build/
 .vscode/
 
 ### TreeInfo ###
-.DirectoryV3.xml
+DirectoryV3.xml
