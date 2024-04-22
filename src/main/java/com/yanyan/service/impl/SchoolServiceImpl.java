@@ -1,25 +1,20 @@
 package com.yanyan.service.impl;
 
 import cn.hutool.json.JSONUtil;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.yanyan.domain.School;
 import com.yanyan.dto.Result;
-import com.yanyan.service.SchoolService;
 import com.yanyan.mapper.SchoolMapper;
+import com.yanyan.service.SchoolService;
 import com.yanyan.utils.CacheClient;
 import com.yanyan.utils.RedisConstants;
 import com.yanyan.utils.RedisData;
-import com.yanyan.utils.SystemConstants;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
