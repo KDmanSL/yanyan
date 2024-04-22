@@ -11,5 +11,6 @@ import com.yanyan.dto.Result;
 */
 public interface CourseService extends IService<Course> {
     Result queryCourseById(Long id);
-
+    Result queryAllCoursesList();
+    Result queryCoursesListByMajorId(Long majorId);
 }

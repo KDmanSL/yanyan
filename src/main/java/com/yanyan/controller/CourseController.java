@@ -24,4 +24,13 @@ public class CourseController {
     public Result queryCourseById(@PathVariable("id") Long id){
         return courseService.queryCourseById(id);
     }
+
+    /**
+     * 查询全部课程列表
+     * @return 课程列表
+     */
+    @GetMapping(value = "/list")
+    public Result queryAllCoursesList(){
+        return courseService.queryAllCoursesList();
+    }
 }

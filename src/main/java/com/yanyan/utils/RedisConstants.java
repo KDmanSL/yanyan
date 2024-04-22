@@ -6,6 +6,12 @@ public class RedisConstants {
     public static final Long LOGIN_CODE_TTL = 2L;
     public static final String LOGIN_USER_KEY = "login:token:";
     public static final Long LOGIN_USER_TTL = 36000L;
+    public static final String COURSE_ALL_LIST_KEY = "course:all:list";
+    public static final Long COURSE_ALL_LIST_TTL = 30L;
+    public static final String SCHOOL_ALL_LIST_KEY = "cache:all:school:";
+    public static final Long SCHOOL_ALL_LIST_TTL = 30L;
+    public static final String CACHE_SCHOOL_KEY = "cache:school:";
+    public static final Long CACHE_SCHOOL_TTL = 30L;
     public static final Long CACHE_NULL_TTL = 2L;
     public static final String SECKILL_STOCK_KEY = "seckill:stock:";
     public static final String BLOG_LIKED_KEY = "blog:liked:";

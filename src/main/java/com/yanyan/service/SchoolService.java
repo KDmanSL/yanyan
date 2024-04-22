@@ -2,6 +2,7 @@ package com.yanyan.service;
 
 import com.yanyan.domain.School;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.yanyan.dto.Result;
 
 /**
 * @author 韶光善良君
@@ -10,4 +11,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface SchoolService extends IService<School> {
 
+    Result queryAllCoursesList(Integer current);
+
+    Result querySchoolById(Long id);
+
+    void saveSchools2Redis(Long expireSeconds) throws InterruptedException;
 }
