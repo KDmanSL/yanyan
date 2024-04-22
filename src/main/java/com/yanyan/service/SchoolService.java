@@ -11,7 +11,7 @@ import com.yanyan.dto.Result;
 */
 public interface SchoolService extends IService<School> {
 
-    Result queryAllCoursesList(Integer current);
+    Result queryAllCoursesList(Integer current, Integer size);
 
     Result querySchoolById(Long id);
 
