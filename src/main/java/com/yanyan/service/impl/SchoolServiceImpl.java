@@ -43,7 +43,7 @@ public class SchoolServiceImpl extends ServiceImpl<SchoolMapper, School>
         int start = (current - 1) * size;
         int end = current * size - 1;
         //1.从redis查询商铺列表缓存
-        List<String> listCache = stringRedisTemplate.opsForList().range(SCHOOL_ALL_LIST_KEY, start, end);
+        List<String> listCache = stringRedisTemplate.opsForList().range(SCHOOL_ALL_LIST_KEY, 0, -1);
         //2.判断是否为空
         if (listCache != null && !listCache.isEmpty()) {
             //不为空，返回列表
@@ -51,21 +51,37 @@ public class SchoolServiceImpl extends ServiceImpl<SchoolMapper, School>
                     .map(str -> (School) JSONUtil.toBean(str, School.class, true))
                     .sorted(Comparator.comparingLong(School::getRanking))
                     .collect(Collectors.toList());
-            return Result.ok(schoolsList);
+            // 检查分页索引，防止越界
+            int listSize = schoolsList.size();
+            start = Math.max(start, 0); // 确保开始索引不是负数
+            end = Math.min(end, listSize - 1); // 确保结束索引不超出列表大小
+
+            // 当开始索引超过列表大小时，返回空列表
+            if (start >= listSize) {
+                return Result.fail("超出页面请求范围");
+            }
+
+            // 安全地进行分页
+            List<School> nowPageList = schoolsList.subList(start, end + 1);
+            return Result.ok(nowPageList);
         }
         //3.缓存为空，查询数据库
         List<School> schoolsList = query().orderByAsc("ranking").list();
         if (schoolsList==null) {
-            return Result.fail("查询类型列表失败");
+            return Result.fail("查询院校列表失败");
         }
 
         // 将数据写入redis
         List<String> strList = schoolsList.stream().map(JSONUtil::toJsonStr).collect(Collectors.toList());
         stringRedisTemplate.opsForList().rightPushAll(RedisConstants.SCHOOL_ALL_LIST_KEY, strList);
         stringRedisTemplate.expire(SCHOOL_ALL_LIST_KEY, SCHOOL_ALL_LIST_TTL, TimeUnit.MINUTES);
-
+        start = Math.max(start, 0);
+        end = Math.min(end, schoolsList.size() - 1);
+        if (start >= schoolsList.size()) {
+            return Result.fail("超出页面请求范围");
+        }
         // 返回当前页数据
-        List<School> nowPageList = schoolsList.subList(start, end+1);
+        List<School> nowPageList = schoolsList.subList(start, end + 1);
         return Result.ok(nowPageList);
     }
 
@@ -105,6 +121,63 @@ public class SchoolServiceImpl extends ServiceImpl<SchoolMapper, School>
             redisData.setData(school);
             stringRedisTemplate.opsForValue().set(CACHE_SCHOOL_KEY + school.getId(), JSONUtil.toJsonStr(redisData));
         }
+    }
+
+    @Override
+    public Result querySchoolByArea(String area, Integer current, Integer size) {
+        int start = (current - 1) * size;
+        int end = current * size - 1;
+        //1.从redis查询商铺列表缓存
+        List<String> listCache = stringRedisTemplate.opsForList().range(SCHOOL_ALL_LIST_KEY, 0,-1);
+        //2.判断是否为空
+        if (listCache != null && !listCache.isEmpty()) {
+            //不为空，返回列表
+            List<School> schoolsList = listCache.stream()
+                    .map(str -> (School) JSONUtil.toBean(str, School.class, true))
+                    .filter(school -> school.getLocation().equals(area))
+                    .sorted(Comparator.comparingLong(School::getRanking))
+                    .collect(Collectors.toList());
+            if (schoolsList.isEmpty()) {
+                return Result.fail("未找到该地区的院校信息");
+            }
+            // 检查分页索引，防止越界
+            int listSize = schoolsList.size();
+            start = Math.max(start, 0); // 确保开始索引不是负数
+            end = Math.min(end, listSize - 1); // 确保结束索引不超出列表大小
+
+            // 当开始索引超过列表大小时，返回空列表
+            if (start >= listSize) {
+                return Result.fail("超出页面请求范围");
+            }
+
+            // 安全地进行分页
+            List<School> nowPageList = schoolsList.subList(start, end + 1);
+            return Result.ok(nowPageList);
+        }
+        //3.缓存为空，查询数据库
+        List<School> schoolsList = query().orderByAsc("ranking").list();
+        if (schoolsList==null) {
+            return Result.fail("查询院校列表失败");
+        }
+        // 将数据写入redis
+        List<String> strList = schoolsList.stream().map(JSONUtil::toJsonStr).collect(Collectors.toList());
+        stringRedisTemplate.opsForList().rightPushAll(RedisConstants.SCHOOL_ALL_LIST_KEY, strList);
+        stringRedisTemplate.expire(SCHOOL_ALL_LIST_KEY, SCHOOL_ALL_LIST_TTL, TimeUnit.MINUTES);
+
+        // 返回当前页数据
+        List<School> nowPageList = schoolsList.stream()
+                .filter(school -> school.getLocation().equals(area))
+                .collect(Collectors.toList());
+        if (nowPageList.isEmpty()) {
+            return Result.fail("未找到该地区的院校信息");
+        }
+        start = Math.max(start, 0);
+        end = Math.min(end, nowPageList.size() - 1);
+        if (start >= nowPageList.size()) {
+            return Result.fail("超出页面请求范围");
+        }
+        nowPageList = nowPageList.subList(start, end + 1);
+        return Result.ok(nowPageList);
     }
 
 

@@ -25,7 +25,7 @@ public class SchoolController {
     public Result queryAllSchoolList(@RequestParam(value = "current", defaultValue = "1") Integer current,
                                      @RequestParam(value = "size", defaultValue = "10") Integer size) {
 
-        return Result.ok(schoolService.queryAllCoursesList(current, size));
+        return schoolService.queryAllCoursesList(current, size);
     }
 
     /**
@@ -39,5 +39,19 @@ public class SchoolController {
         return schoolService.querySchoolById(id);
     }
 
+    /**
+     * 根据地区查询学校信息
+     *
+     * @param area 地区
+     * @param current 当前页
+     * @param size    每页大小
+     * @return 学校信息
+     */
+    @GetMapping(value = "/area/{area}")
+    public Result querySchoolByArea(@PathVariable("area") String area,
+                                    @RequestParam(value = "current", defaultValue = "1") Integer current,
+                                    @RequestParam(value = "size", defaultValue = "10") Integer size) {
+        return schoolService.querySchoolByArea(area, current, size);
+    }
 
 }
