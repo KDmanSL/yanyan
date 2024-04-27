@@ -29,6 +29,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course>
 
     @Override
     public Result queryCourseById(Long id) {
+        // TODO 添加redis
         Course course = this.getById(id);
         return Result.ok(course);
     }
