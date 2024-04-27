@@ -38,6 +38,9 @@ public class UserDetailServiceImpl extends ServiceImpl<UserDetailMapper, UserDet
     @Override
     public Result queryUserDetail() {
         Long userId = UserHolder.getUser().getId();
+        String username = UserHolder.getUser().getUsername();
+        String imgUrl = UserHolder.getUser().getImgUrl();
+
         UserDetail userDetail = query().eq("userId", userId).one();
         String schoolName = null;
         String majorName = null;
@@ -49,7 +52,8 @@ public class UserDetailServiceImpl extends ServiceImpl<UserDetailMapper, UserDet
         }
 
         UserDetailDTO userDetailDTO = new UserDetailDTO();
-        userDetailDTO.setUserId(userId);
+        userDetailDTO.setUserName(username);
+        userDetailDTO.setImgUrl(imgUrl);
         userDetailDTO.setSchoolName(schoolName);
         userDetailDTO.setMajorName(majorName);
         userDetailDTO.setScore(userDetail.getScore());
