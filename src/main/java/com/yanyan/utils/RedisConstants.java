@@ -12,6 +12,8 @@ public class RedisConstants {
     public static final Long SCHOOL_ALL_LIST_TTL = 30L;
     public static final String CACHE_SCHOOL_KEY = "cache:school:";
     public static final Long CACHE_SCHOOL_TTL = 30L;
+    public static final String CACHE_MAJOR_KEY = "cache:major:";
+    public static final Long CACHE_MAJOR_TTL = 30L;
     public static final Long CACHE_NULL_TTL = 2L;
     public static final String SECKILL_STOCK_KEY = "seckill:stock:";
     public static final String BLOG_LIKED_KEY = "blog:liked:";

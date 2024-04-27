@@ -117,7 +117,7 @@ public class SchoolServiceImpl extends ServiceImpl<SchoolMapper, School>
             RedisData redisData = new RedisData();
             // 添加过期时间，随机添加1-10的随机数，防止雪崩
             Random random = new Random();
-            redisData.setExpireTime(LocalDateTime.now().plusSeconds(expireSeconds).plusSeconds(random.nextInt(10)));
+            redisData.setExpireTime(LocalDateTime.now().plusMinutes(expireSeconds).plusSeconds(random.nextInt(10)));
             redisData.setData(school);
             stringRedisTemplate.opsForValue().set(CACHE_SCHOOL_KEY + school.getId(), JSONUtil.toJsonStr(redisData));
         }
