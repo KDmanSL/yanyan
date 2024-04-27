@@ -47,13 +47,10 @@ public class MajorServiceImpl extends ServiceImpl<MajorMapper, Major>
     }
 
     @Override
-    public Result queryMajorById(Long id) {
+    public Major queryMajorById(Long id) {
         Major major;
         major = cacheClient.queryWithLogicalExpire(CACHE_MAJOR_KEY, id, Major.class, this::getById, CACHE_MAJOR_TTL, TimeUnit.SECONDS);
-        if (major == null) {
-            return Result.fail("未找到对应的专业信息");
-        }
-        return Result.ok(major);
+        return major;
     }
 }
 

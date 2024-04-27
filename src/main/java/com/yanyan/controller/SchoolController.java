@@ -1,5 +1,6 @@
 package com.yanyan.controller;
 
+import com.yanyan.domain.School;
 import com.yanyan.dto.Result;
 import com.yanyan.service.SchoolService;
 import jakarta.annotation.Resource;
@@ -36,7 +37,11 @@ public class SchoolController {
      */
     @GetMapping(value = "/{id}")
     public Result querySchoolById(@PathVariable("id") Long id) {
-        return schoolService.querySchoolById(id);
+        School school = schoolService.querySchoolById(id);
+        if (school == null) {
+            return Result.fail("未找到对应的院校信息");
+        }
+        return Result.ok(school);
     }
 
     /**

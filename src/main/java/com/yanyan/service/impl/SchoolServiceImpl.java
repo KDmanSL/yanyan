@@ -93,16 +93,14 @@ public class SchoolServiceImpl extends ServiceImpl<SchoolMapper, School>
      * @return 院校信息
      */
     @Override
-    public Result querySchoolById(Long id) {
+    public School querySchoolById(Long id) {
         School school;
         // 调用封装的redis查询工具，输入参数：redis_key，id，返回类型，数据库查询方法，缓存时间，缓存时间单位
         // queryWithLogicalExpire 逻辑过期解决缓存击穿问题
         school = cacheClient.queryWithLogicalExpire(CACHE_SCHOOL_KEY, id, School.class, this::getById, CACHE_SCHOOL_TTL, TimeUnit.MINUTES);
-        if (school == null) {
-            return Result.fail("未找到对应的院校信息");
-        }
-        return Result.ok(school);
+        return school;
     }
+
 
 
     /**

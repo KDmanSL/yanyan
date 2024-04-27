@@ -10,7 +10,7 @@ import com.yanyan.dto.Result;
 * @createDate 2024-04-05 17:23:43
 */
 public interface MajorService extends IService<Major> {
-    Result queryMajorById(Long id);
+    Major queryMajorById(Long id);
 
     void saveMajor2Redis(Long expireSeconds) throws InterruptedException;
 }

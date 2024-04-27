@@ -13,7 +13,7 @@ public interface SchoolService extends IService<School> {
 
     Result queryAllCoursesList(Integer current, Integer size);
 
-    Result querySchoolById(Long id);
+    School querySchoolById(Long id);
 
     void saveSchools2Redis(Long expireSeconds) throws InterruptedException;
 
