@@ -2,6 +2,9 @@ package com.yanyan.service;
 
 import com.yanyan.domain.Post;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.yanyan.dto.PostDTO;
+import com.yanyan.dto.Result;
+import jakarta.servlet.http.HttpSession;
 
 /**
 * @author 韶光善良君
@@ -10,4 +13,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface PostService extends IService<Post> {
 
+    Result queryAllPostList();
+    Result queryPostListByUserId(Long userId);
+
+    Result addPost(PostDTO postDTO);
 }

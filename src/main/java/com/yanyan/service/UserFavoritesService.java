@@ -2,6 +2,8 @@ package com.yanyan.service;
 
 import com.yanyan.domain.UserFavorites;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.yanyan.dto.Result;
+import jakarta.servlet.http.HttpSession;
 
 /**
 * @author 韶光善良君
@@ -10,4 +12,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface UserFavoritesService extends IService<UserFavorites> {
 
+    Result queryUserFavoritesByUserId(HttpSession session, Integer current, Integer size);
+
+    Result addUserFavorites(HttpSession session, Long courseId);
 }

@@ -48,4 +48,13 @@ public class UserController {
         return userService.register(registerFormDTO,session);
     }
 
+    /**
+     * 获取用户详情
+     * @return 用户详情
+     */
+    @PostMapping("/detail")
+    public Result getUserDetail(){
+        return userDetailService.queryUserDetail();
+    }
+
 }

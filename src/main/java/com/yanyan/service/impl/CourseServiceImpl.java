@@ -57,6 +57,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course>
         return Result.ok(courseList);
     }
 
+    // TODO 添加根据专业查找课程的功能
     @Override
     public Result queryCoursesListByMajorId(Long majorId) {
         return null;

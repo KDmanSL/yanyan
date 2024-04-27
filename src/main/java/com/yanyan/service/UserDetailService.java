@@ -2,6 +2,8 @@ package com.yanyan.service;
 
 import com.yanyan.domain.UserDetail;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.yanyan.dto.Result;
+import jakarta.servlet.http.HttpSession;
 
 /**
 * @author 韶光善良君
@@ -9,5 +11,11 @@ import com.baomidou.mybatisplus.extension.service.IService;
 * @createDate 2024-04-15 12:33:57
 */
 public interface UserDetailService extends IService<UserDetail> {
+
+    Result queryUserDetail();
+
+    Result setSchoolMajorSessionByUserId(String schoolName, String majorName,Integer grade);
+
+    Result setScoreByUserId(Double score);
 
 }
