@@ -14,7 +14,7 @@ public interface UserDetailService extends IService<UserDetail> {
 
     Result queryUserDetail();
 
-    Result setSchoolMajorSessionByUserId(String schoolName, String majorName,Integer grade);
+    Result setSchoolMajorSessionByUserId(String schoolName, String majorName,Integer session);
 
     Result setScoreByUserId(Double score);
 

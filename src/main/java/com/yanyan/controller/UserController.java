@@ -57,4 +57,16 @@ public class UserController {
         return userDetailService.queryUserDetail();
     }
 
+    /**
+     * 设置用户详情
+     * @param schoolName,majorName,session 院校名称 专业名称 届数
+     * @return 结果信息
+     */
+    @PostMapping("/detail/set")
+    public Result setUserDetail(@RequestParam("schoolName") String schoolName,
+                                @RequestParam("majorName") String majorName,
+                                @RequestParam(value = "session" ,required = false) Integer session){
+        return userDetailService.setSchoolMajorSessionByUserId(schoolName,majorName,session);
+    }
+
 }

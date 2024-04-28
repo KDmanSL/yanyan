@@ -3,10 +3,12 @@ package com.yanyan.service.impl;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yanyan.domain.Major;
+import com.yanyan.domain.School;
 import com.yanyan.dto.Result;
 import com.yanyan.service.MajorService;
 import com.yanyan.mapper.MajorMapper;
 import com.yanyan.utils.CacheClient;
+import com.yanyan.utils.RedisConstants;
 import com.yanyan.utils.RedisData;
 import jakarta.annotation.Resource;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -16,9 +18,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
-import static com.yanyan.utils.RedisConstants.CACHE_MAJOR_KEY;
-import static com.yanyan.utils.RedisConstants.CACHE_MAJOR_TTL;
+import static com.yanyan.utils.RedisConstants.*;
 
 /**
 * @author 韶光善良君
@@ -51,6 +53,40 @@ public class MajorServiceImpl extends ServiceImpl<MajorMapper, Major>
         Major major;
         major = cacheClient.queryWithLogicalExpire(CACHE_MAJOR_KEY, id, Major.class, this::getById, CACHE_MAJOR_TTL, TimeUnit.SECONDS);
         return major;
+    }
+
+    @Override
+    public Major queryMajorByName(String name) {
+        List<String> listCache = stringRedisTemplate.opsForList().range(MAJOR_ALL_LIST_KEY, 0,-1);
+        if (listCache != null && !listCache.isEmpty()) {
+            //不为空，返回列表
+            List<Major> majorsList = listCache.stream()
+                    .map(str -> (Major) JSONUtil.toBean(str, Major.class, true))
+                    .filter(major -> major.getName().equals(name))
+                    .collect(Collectors.toList());
+            if (majorsList.isEmpty()) {
+                return null;
+            }
+
+            return majorsList.get(0);
+        }
+        //3.缓存为空，查询数据库
+        List<Major> majorsList = list();
+
+        // 将数据写入redis
+        List<String> strList = majorsList.stream().map(JSONUtil::toJsonStr).collect(Collectors.toList());
+        stringRedisTemplate.opsForList().rightPushAll(RedisConstants.MAJOR_ALL_LIST_KEY, strList);
+        stringRedisTemplate.expire(MAJOR_ALL_LIST_KEY, MAJOR_ALL_LIST_TTL, TimeUnit.MINUTES);
+
+        // 返回当前页数据
+        List<Major> majors = majorsList.stream()
+                .filter(major -> major.getName().equals(name))
+                .collect(Collectors.toList());
+        if (majors.isEmpty()) {
+            return null;
+        }
+
+        return majors.get(0);
     }
 }
 

@@ -1,11 +1,15 @@
 package com.yanyan.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.extension.conditions.update.UpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.yanyan.domain.Major;
 import com.yanyan.domain.School;
 import com.yanyan.domain.UserDetail;
 import com.yanyan.dto.Result;
 import com.yanyan.dto.UserDetailDTO;
 import com.yanyan.service.MajorService;
+import com.yanyan.service.SchoolMajorService;
 import com.yanyan.service.SchoolService;
 import com.yanyan.service.UserDetailService;
 import com.yanyan.mapper.UserDetailMapper;
@@ -16,6 +20,8 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import static com.yanyan.utils.RedisConstants.CACHE_SCHOOL_KEY;
@@ -34,7 +40,8 @@ public class UserDetailServiceImpl extends ServiceImpl<UserDetailMapper, UserDet
     private SchoolService schoolService;
     @Autowired
     private MajorService majorService;
-
+    @Resource
+    private SchoolMajorService schoolMajorService;
     @Override
     public Result queryUserDetail() {
         Long userId = UserHolder.getUser().getId();
@@ -63,8 +70,30 @@ public class UserDetailServiceImpl extends ServiceImpl<UserDetailMapper, UserDet
     }
 
     @Override
-    public Result setSchoolMajorSessionByUserId(String schoolName, String majorName, Integer grade) {
-        return null;
+    public Result setSchoolMajorSessionByUserId(String schoolName, String majorName, Integer session) {
+
+        if(Objects.equals(schoolName, "") || Objects.equals(majorName, "") || session == null){
+            return Result.fail("请输入完整信息");
+        }
+        List<Major> majorList = schoolMajorService.queryMajorNameBySchoolName(schoolName);
+        if(majorList.isEmpty()){
+            return Result.fail("学校不存在");
+        }
+        List<Major> majorList2 = majorList.stream().filter(major -> major.getName().equals(majorName)).toList();
+        if(majorList2.isEmpty()){
+            return Result.fail("该院校没有该专业");
+        }
+
+        Long userId = UserHolder.getUser().getId();
+        Long schoolId = schoolService.querySchoolByName(schoolName).getId();
+        Long majorId = majorService.queryMajorByName(majorName).getId();
+        UserDetail userDetail = new UserDetail();
+        userDetail.setUserid(userId);
+        userDetail.setSchoolid(schoolId);
+        userDetail.setMajorid(majorId);
+        userDetail.setSession(session);
+        update().eq("userId", userId).update(userDetail);
+        return Result.ok("用户信息更改成功");
     }
 
     @Override

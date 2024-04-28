@@ -101,6 +101,7 @@ public class SchoolServiceImpl extends ServiceImpl<SchoolMapper, School>
         return school;
     }
 
+    @Override
 
 
     /**
@@ -178,6 +179,39 @@ public class SchoolServiceImpl extends ServiceImpl<SchoolMapper, School>
         return Result.ok(nowPageList);
     }
 
+    @Override
+    public School querySchoolByName(String name) {
+        List<String> listCache = stringRedisTemplate.opsForList().range(SCHOOL_ALL_LIST_KEY, 0,-1);
+        if (listCache != null && !listCache.isEmpty()) {
+            //不为空，返回列表
+            List<School> schoolsList = listCache.stream()
+                    .map(str -> (School) JSONUtil.toBean(str, School.class, true))
+                    .filter(school -> school.getName().equals(name))
+                    .collect(Collectors.toList());
+            if (schoolsList.isEmpty()) {
+                return null;
+            }
+
+            return schoolsList.get(0);
+        }
+        //3.缓存为空，查询数据库
+        List<School> schoolsList = query().orderByAsc("ranking").list();
+
+        // 将数据写入redis
+        List<String> strList = schoolsList.stream().map(JSONUtil::toJsonStr).collect(Collectors.toList());
+        stringRedisTemplate.opsForList().rightPushAll(RedisConstants.SCHOOL_ALL_LIST_KEY, strList);
+        stringRedisTemplate.expire(SCHOOL_ALL_LIST_KEY, SCHOOL_ALL_LIST_TTL, TimeUnit.MINUTES);
+
+        // 返回当前页数据
+        List<School> schools = schoolsList.stream()
+                .filter(school -> school.getName().equals(name))
+                .collect(Collectors.toList());
+        if (schools.isEmpty()) {
+            return null;
+        }
+
+        return schools.get(0);
+    }
 
 }
 

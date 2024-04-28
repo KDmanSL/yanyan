@@ -18,4 +18,6 @@ public interface SchoolService extends IService<School> {
     void saveSchools2Redis(Long expireSeconds) throws InterruptedException;
 
     Result querySchoolByArea(String area, Integer current, Integer size);
+
+    School querySchoolByName(String name);
 }

@@ -1,8 +1,11 @@
 package com.yanyan.service;
 
+import com.yanyan.domain.Major;
 import com.yanyan.domain.SchoolMajor;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yanyan.dto.Result;
+
+import java.util.List;
 
 /**
 * @author 韶光善良君
@@ -10,5 +13,5 @@ import com.yanyan.dto.Result;
 * @createDate 2024-04-05 17:24:01
 */
 public interface SchoolMajorService extends IService<SchoolMajor> {
-    Result queryMajorNameBySchoolName(String schoolName);
+    List<Major> queryMajorNameBySchoolName(String schoolName);
 }
