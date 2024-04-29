@@ -18,15 +18,18 @@ public class SchoolController {
     /**
      * 查询所有学校信息
      *
+     * @param is211 是否211
      * @param current 当前页
      * @param size    每页大小
      * @return 学校信息
      */
     @GetMapping(value = "/list")
-    public Result queryAllSchoolList(@RequestParam(value = "current", defaultValue = "1") Integer current,
-                                     @RequestParam(value = "size", defaultValue = "10") Integer size) {
+    public Result queryAllSchoolList(
+            @RequestParam(value = "is211", required = false) Integer is211,
+            @RequestParam(value = "current", defaultValue = "1") Integer current,
+            @RequestParam(value = "size", defaultValue = "10") Integer size) {
 
-        return schoolService.queryAllCoursesList(current, size);
+        return schoolService.queryAllSchoolList(is211, current, size);
     }
 
     /**
@@ -47,16 +50,19 @@ public class SchoolController {
     /**
      * 根据地区查询学校信息
      *
+     * @param is211 是否211
      * @param area 地区
      * @param current 当前页
      * @param size    每页大小
      * @return 学校信息
      */
     @GetMapping(value = "/area/{area}")
-    public Result querySchoolByArea(@PathVariable("area") String area,
-                                    @RequestParam(value = "current", defaultValue = "1") Integer current,
-                                    @RequestParam(value = "size", defaultValue = "10") Integer size) {
-        return schoolService.querySchoolByArea(area, current, size);
+    public Result querySchoolByArea(
+            @RequestParam(value = "is211", required = false) Integer is211,
+            @PathVariable("area") String area,
+            @RequestParam(value = "current", defaultValue = "1") Integer current,
+            @RequestParam(value = "size", defaultValue = "10") Integer size) {
+        return schoolService.querySchoolByArea(is211, area, current, size);
     }
 
 }

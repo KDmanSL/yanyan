@@ -49,6 +49,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
                     .map(str -> (Post) JSONUtil.toBean(str, Post.class, true))
                     .sorted(Comparator.comparing(Post::getPostdate).reversed())
                     .collect(Collectors.toList());
+            Long totalPage = (long) Math.ceil((double) postsList.size() / DEFAULT_PAGE_SIZE);
             // 检查分页索引，防止越界
             int listSize = postsList.size();
             start = Math.max(start, 0); // 确保开始索引不是负数
@@ -61,7 +62,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
 
             // 安全地进行分页
             List<Post> nowPageList = postsList.subList(start, end + 1);
-            return Result.ok(nowPageList);
+            return Result.ok(nowPageList, totalPage);
         }
         //3.缓存为空，查询数据库
         List<Post> postsList =  query().orderByDesc("postDate").list();
@@ -73,6 +74,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
         List<String> strList = postsList.stream().map(JSONUtil::toJsonStr).collect(Collectors.toList());
         stringRedisTemplate.opsForList().rightPushAll(RedisConstants.POST_ALL_LIST_KEY, strList);
         stringRedisTemplate.expire(POST_ALL_LIST_KEY, POST_ALL_LIST_TTL, TimeUnit.MINUTES);
+        Long totalPage = (long) Math.ceil((double) postsList.size() / DEFAULT_PAGE_SIZE);
         start = Math.max(start, 0);
         end = Math.min(end, postsList.size() - 1);
         if (start >= postsList.size()) {
@@ -80,7 +82,8 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
         }
         // 返回当前页数据
         List<Post> nowPageList = postsList.subList(start, end + 1);
-        return Result.ok(nowPageList);
+
+        return Result.ok(nowPageList, totalPage);
     }
 
     @Override

@@ -11,13 +11,13 @@ import com.yanyan.dto.Result;
 */
 public interface SchoolService extends IService<School> {
 
-    Result queryAllCoursesList(Integer current, Integer size);
+    Result queryAllSchoolList(Integer is211, Integer current, Integer size);
 
     School querySchoolById(Long id);
 
     void saveSchools2Redis(Long expireSeconds) throws InterruptedException;
 
-    Result querySchoolByArea(String area, Integer current, Integer size);
+    Result querySchoolByArea(Integer is211, String area, Integer current, Integer size);
 
     School querySchoolByName(String name);
 }
