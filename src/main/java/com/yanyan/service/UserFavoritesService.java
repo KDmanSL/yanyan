@@ -12,7 +12,7 @@ import jakarta.servlet.http.HttpSession;
 */
 public interface UserFavoritesService extends IService<UserFavorites> {
 
-    Result queryUserFavoritesByUserId(HttpSession session, Integer current, Integer size);
+    Result queryUserFavoritesByUserId(Integer current, Integer size);
 
-    Result addUserFavorites(HttpSession session, Long courseId);
+    Result addUserFavorites(Long courseId);
 }

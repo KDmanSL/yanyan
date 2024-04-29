@@ -101,8 +101,6 @@ public class SchoolServiceImpl extends ServiceImpl<SchoolMapper, School>
         return school;
     }
 
-    @Override
-
 
     /**
      * 缓存预热
@@ -110,6 +108,7 @@ public class SchoolServiceImpl extends ServiceImpl<SchoolMapper, School>
      * @param expireSeconds 过期时间
      * @throws InterruptedException 线程中断异常
      */
+    @Override
     public void saveSchools2Redis(Long expireSeconds) throws InterruptedException {
         List<School> schools = list();
         for (School school : schools) {

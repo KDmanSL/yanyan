@@ -36,7 +36,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course>
 
     @Override
     public Result queryAllCoursesList() {
-        //TODO 修改为带有页面参数的分页查询 要使用Redis缓存
+        //TODO 页面分页查找 需要参数Integer current, Integer size current当前页面 size页面大小
 //        //1.从redis查询商铺列表缓存
 //        List<String> listCache=stringRedisTemplate.opsForList().range(COURSE_ALL_LIST_KEY, 0, -1);
 //        //2.判断是否为空

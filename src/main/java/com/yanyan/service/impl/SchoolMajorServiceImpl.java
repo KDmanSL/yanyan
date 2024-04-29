@@ -23,7 +23,6 @@ import java.util.List;
 @Service
 public class SchoolMajorServiceImpl extends ServiceImpl<SchoolMajorMapper, SchoolMajor>
     implements SchoolMajorService{
-    // TODO 通过学校查询该学校开设的专业
     @Resource
     private SchoolService schoolService;
     @Resource

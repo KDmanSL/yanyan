@@ -18,12 +18,12 @@ import org.springframework.stereotype.Service;
 public class UserFavoritesServiceImpl extends ServiceImpl<UserFavoritesMapper, UserFavorites>
     implements UserFavoritesService{
     @Override
-    public Result queryUserFavoritesByUserId(HttpSession session, Integer current, Integer size) {
+    public Result queryUserFavoritesByUserId(Integer current, Integer size) {
         return null;
     }
 
     @Override
-    public Result addUserFavorites(HttpSession session, Long courseId) {
+    public Result addUserFavorites(Long courseId) {
         return null;
     }
 

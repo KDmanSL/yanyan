@@ -14,5 +14,13 @@ public abstract class RegexPatterns {
      * 验证码正则, 6位数字或字母
      */
     public static final String VERIFY_CODE_REGEX = "^[a-zA-Z\\d]{6}$";
+    /**
+     * 帖子标题正则，1-20位的字符
+     */
+    public static final String POST_TITLE_REGEX = "^.{1,20}$";
+    /**
+     * 帖子内容正则，1-1000位的字符
+     */
+    public static final String POST_CONTENT_REGEX = "^.{1,1000}$";
 
 }

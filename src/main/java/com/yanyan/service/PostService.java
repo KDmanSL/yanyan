@@ -13,8 +13,8 @@ import jakarta.servlet.http.HttpSession;
 */
 public interface PostService extends IService<Post> {
 
-    Result queryAllPostList();
-    Result queryPostListByUserId(Long userId);
+    Result queryAllPostList(Integer current);
+    Result queryPostListByUserId(Long userId,Integer current);
 
     Result addPost(PostDTO postDTO);
 }
