@@ -16,13 +16,10 @@ import static com.yanyan.utils.RedisConstants.*;
 @Component
 public class RedisCachePreloader {
     @Autowired
-    private SchoolService schoolService;
-    @Autowired
     private MajorService majorService;
     @PostConstruct
     public void preloadCache(){
         try {
-            schoolService.saveSchools2Redis(CACHE_SCHOOL_TTL);
             majorService.saveMajor2Redis(CACHE_MAJOR_TTL);
         }catch (Exception e){
             log.error("缓存预热失败:",e);
