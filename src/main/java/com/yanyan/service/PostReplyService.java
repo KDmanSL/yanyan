@@ -2,9 +2,8 @@ package com.yanyan.service;
 
 import com.yanyan.domain.PostReply;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.yanyan.dto.PostReplyDTO;
-
-import java.util.List;
+import com.yanyan.dto.AddPostReplyDTO;
+import com.yanyan.dto.Result;
 
 /**
 * @author 韶光善良君
@@ -12,5 +11,6 @@ import java.util.List;
 * @createDate 2024-04-05 17:23:53
 */
 public interface PostReplyService extends IService<PostReply> {
-    public List<PostReplyDTO> queryPostReplyWithUserInfoByPostId(Long postId);
+    Result queryPostReplyWithUserInfoByUserId(Long userId, Integer current);
+    Result addPostReply(AddPostReplyDTO addPostReplyDTO) throws InterruptedException;
 }

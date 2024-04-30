@@ -15,6 +15,7 @@ import java.util.List;
 */
 public interface PostReplyMapper extends BaseMapper<PostReply>{
     List<PostReplyDTO> selectPostReplyWithUserInfo(@Param("postId") Long postId);
+    List<PostReplyDTO> selectPostReplyWithUserInfoByUserId(@Param("userId") Long userId);
 }
 
 
