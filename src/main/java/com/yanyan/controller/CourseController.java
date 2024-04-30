@@ -4,7 +4,6 @@ import com.yanyan.dto.Result;
 import com.yanyan.service.CourseService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -30,7 +29,7 @@ public class CourseController {
      * @return 课程列表
      */
     @GetMapping(value = "/list")
-    public Result queryAllCoursesList(){
-        return courseService.queryAllCoursesList();
+    public Result queryAllCoursesList(Integer current, Integer size){
+        return courseService.queryAllCoursesList(current, size);
     }
 }

@@ -11,6 +11,15 @@ import com.yanyan.dto.Result;
 */
 public interface CourseService extends IService<Course> {
     Result queryCourseById(Long id);
-    Result queryAllCoursesList();
+    Result queryAllCoursesList(Integer current, Integer size);
+
+    /**
+     * 缓存预热
+     *
+     * @param expireSeconds 过期时间
+     * @throws InterruptedException 线程中断异常
+     */
+    void saveCourses2Redis(Long expireSeconds) throws InterruptedException;
+
     Result queryCoursesListByMajorId(Long majorId);
 }
