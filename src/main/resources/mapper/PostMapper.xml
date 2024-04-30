@@ -16,4 +16,10 @@
         id,userId,title,
         content,postDate
     </sql>
+    <select id="selectPostWithUserInfo" resultType="com.yanyan.dto.PostDTO">
+        SELECT p.*,u.userName, u.img_url
+        FROM yy_post p
+                 JOIN yy_user u ON p.userId = u.id
+        ORDER BY p.postDate DESC
+    </select>
 </mapper>

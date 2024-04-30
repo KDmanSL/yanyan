@@ -2,9 +2,13 @@ package com.yanyan.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yanyan.domain.PostReply;
+import com.yanyan.dto.PostReplyDTO;
 import com.yanyan.service.PostReplyService;
 import com.yanyan.mapper.PostReplyMapper;
+import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
 * @author 韶光善良君
@@ -14,7 +18,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class PostReplyServiceImpl extends ServiceImpl<PostReplyMapper, PostReply>
     implements PostReplyService{
+    @Resource
+    PostReplyMapper postReplyMapper;
 
+    public List<PostReplyDTO> queryPostReplyWithUserInfoByPostId(Long postId) {
+        return postReplyMapper.selectPostReplyWithUserInfo(postId);
+    }
 }
 
 

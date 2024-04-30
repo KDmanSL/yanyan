@@ -2,6 +2,10 @@ package com.yanyan.mapper;
 
 import com.yanyan.domain.PostReply;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.yanyan.dto.PostReplyDTO;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
 * @author 韶光善良君
@@ -9,8 +13,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 * @createDate 2024-04-05 17:23:53
 * @Entity com.yanyan.domain.PostReply
 */
-public interface PostReplyMapper extends BaseMapper<PostReply> {
-
+public interface PostReplyMapper extends BaseMapper<PostReply>{
+    List<PostReplyDTO> selectPostReplyWithUserInfo(@Param("postId") Long postId);
 }
 
 

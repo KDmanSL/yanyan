@@ -2,6 +2,11 @@ package com.yanyan.mapper;
 
 import com.yanyan.domain.Post;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.yanyan.dto.PostDTO;
+import com.yanyan.dto.PostReplyDTO;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
 * @author 韶光善良君
@@ -10,7 +15,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 * @Entity com.yanyan.domain.Post
 */
 public interface PostMapper extends BaseMapper<Post> {
-
+    List<PostDTO> selectPostWithUserInfo();
 }
 
 

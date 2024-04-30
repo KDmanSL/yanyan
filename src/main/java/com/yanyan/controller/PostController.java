@@ -1,6 +1,6 @@
 package com.yanyan.controller;
 
-import com.yanyan.dto.PostDTO;
+import com.yanyan.dto.AddPostDTO;
 import com.yanyan.dto.Result;
 import com.yanyan.service.PostService;
 import jakarta.annotation.Resource;
@@ -19,11 +19,24 @@ public class PostController {
      * 查询所有帖子信息
      *
      * @param current 当前页
-     * @return 学校信息
+     * @return 所有帖子信息 + 总页数
      */
     @GetMapping(value = "/list")
     public Result queryAllPostList(@RequestParam(value = "current", defaultValue = "1") Integer current) {
         return postService.queryAllPostList(current);
+    }
+
+    /**
+     * 查询某人发过的所有帖子
+     *
+     * @param userId 用户id
+     * @param current 当前页
+     * @return 帖子信息 + 总页数
+     */
+    @GetMapping(value = "/list/user")
+    public Result queryPostListByUserId(@RequestParam(value = "userId") Long userId,
+                                        @RequestParam(value = "current", defaultValue = "1") Integer current) {
+        return postService.queryPostListByUserId(userId, current);
     }
 
 
@@ -33,7 +46,7 @@ public class PostController {
      * @return 添加结果
      */
     @PostMapping(value = "/add")
-    public Result addPost(@RequestBody PostDTO postDTO) {
+    public Result addPost(@RequestBody AddPostDTO postDTO) {
         return postService.addPost(postDTO);
     }
 }

@@ -8,6 +8,8 @@
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="postid" column="postId" jdbcType="BIGINT"/>
             <result property="userid" column="userId" jdbcType="BIGINT"/>
+<!--            <result property="username" column="userName" jdbcType="VARCHAR"/>-->
+<!--            <result property="imgUrl" column="imgUrl" jdbcType="VARCHAR"/>-->
             <result property="content" column="content" jdbcType="VARCHAR"/>
             <result property="replydate" column="ReplyDate" jdbcType="TIMESTAMP"/>
     </resultMap>
@@ -16,4 +18,11 @@
         id,postId,userId,
         content,ReplyDate
     </sql>
+    <select id="selectPostReplyWithUserInfo" resultType="com.yanyan.dto.PostReplyDTO">
+        SELECT p.*,u.userName, u.img_url
+        FROM yy_post_reply p
+                 JOIN yy_user u ON p.userId = u.id
+        WHERE p.postId = #{postId}
+        ORDER BY p.ReplyDate
+    </select>
 </mapper>

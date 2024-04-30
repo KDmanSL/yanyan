@@ -2,9 +2,8 @@ package com.yanyan.service;
 
 import com.yanyan.domain.Post;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.yanyan.dto.PostDTO;
+import com.yanyan.dto.AddPostDTO;
 import com.yanyan.dto.Result;
-import jakarta.servlet.http.HttpSession;
 
 /**
 * @author 韶光善良君
@@ -14,7 +13,10 @@ import jakarta.servlet.http.HttpSession;
 public interface PostService extends IService<Post> {
 
     Result queryAllPostList(Integer current);
-    Result queryPostListByUserId(Long userId,Integer current);
 
-    Result addPost(PostDTO postDTO);
+    void savePost2Redis(Long expireSeconds) throws InterruptedException;
+
+    Result queryPostListByUserId(Long userId, Integer current);
+
+    Result addPost(AddPostDTO postDTO);
 }
