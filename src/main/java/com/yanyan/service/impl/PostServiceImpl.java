@@ -7,6 +7,7 @@ import com.yanyan.dto.AddPostDTO;
 import com.yanyan.dto.PostDTO;
 import com.yanyan.dto.PostReplyDTO;
 import com.yanyan.dto.Result;
+import com.yanyan.mapper.PostReplyMapper;
 import com.yanyan.service.PostReplyService;
 import com.yanyan.service.PostService;
 import com.yanyan.mapper.PostMapper;
@@ -36,7 +37,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
     @Resource
     private PostMapper postMapper;
     @Resource
-    private PostReplyService postReplyService;
+    PostReplyMapper postReplyMapper;
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
@@ -99,7 +100,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
         List<PostDTO> postList = postMapper.selectPostWithUserInfo();
         for (PostDTO postDTO : postList) {
             Long postId = postDTO.getId();
-            List<PostReplyDTO> postReplyList = postReplyService.queryPostReplyWithUserInfoByPostId(postId);
+            List<PostReplyDTO> postReplyList = postReplyMapper.selectPostReplyWithUserInfo(postId);
             postDTO.setPostReplyList(postReplyList);
         }
         // 将数据写入redis

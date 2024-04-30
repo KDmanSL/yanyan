@@ -25,4 +25,11 @@
         WHERE p.postId = #{postId}
         ORDER BY p.ReplyDate
     </select>
+    <select id="selectPostReplyWithUserInfoByUserId" resultType="com.yanyan.dto.PostReplyDTO">
+        SELECT p.*,u.userName, u.img_url
+        FROM yy_post_reply p
+                 JOIN yy_user u ON p.userId = u.id
+        WHERE p.userId = #{userId}
+        ORDER BY p.ReplyDate
+    </select>
 </mapper>
