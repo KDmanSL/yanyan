@@ -35,7 +35,7 @@ import static com.yanyan.utils.RedisConstants.CACHE_SCHOOL_TTL;
 @Service
 public class UserDetailServiceImpl extends ServiceImpl<UserDetailMapper, UserDetail>
     implements UserDetailService{
-    // TODO 根据用户id获取用户详细内容  设置用户的考研目标院校目标专业以及考研具体年数
+
     @Autowired
     private SchoolService schoolService;
     @Autowired
@@ -98,6 +98,7 @@ public class UserDetailServiceImpl extends ServiceImpl<UserDetailMapper, UserDet
 
     @Override
     public Result setScoreByUserId(Double score) {
+        // TODO 设置用户分数
         return null;
     }
 }
