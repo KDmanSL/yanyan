@@ -1,7 +1,7 @@
 package com.yanyan.utils;
 
 public class RedisConstants {
-
+    public static final String USER_UV_KEY = "user:uv:";
     public static final String LOGIN_CODE_KEY = "login:code:";
     public static final Long LOGIN_CODE_TTL = 2L;
     public static final String LOGIN_USER_KEY = "login:token:";

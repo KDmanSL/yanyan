@@ -1,11 +1,14 @@
 package com.yanyan;
 
+import cn.hutool.core.date.DateUtil;
 import com.yanyan.dto.PostReplyDTO;
 import com.yanyan.service.*;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @SpringBootTest
@@ -23,7 +26,8 @@ class YanyanApplicationTests {
 	private PostReplyService postReplyService;
 	@Resource
 	private PostService postService;
-
+	@Resource
+	private StringRedisTemplate stringRedisTemplate;
 	@Test
 	void testQueryMajorById() {
 		System.out.println(majorService.queryMajorById(1L));
@@ -39,15 +43,18 @@ class YanyanApplicationTests {
 		System.out.println(majorService.queryMajorByName("中国语言文学"));
 	}
 
-	@Test
-	void testQueryPostReplyWithUserInfoByPostId(){
-		List<PostReplyDTO> postReplyDTOList = postReplyService.queryPostReplyWithUserInfoByPostId(1L);
-		postReplyDTOList.forEach(System.out::println);
-	}
+
 
 	@Test
 	void testQueryPostWithUserInfo() throws InterruptedException {
 		postService.savePost2Redis(1L);
+	}
+	@Test
+	void testUvSize(){
+		String today = DateUtil.today();
+
+		Long count = stringRedisTemplate.opsForHyperLogLog().size("user:uv:"+today);
+		System.out.println(count);
 	}
 
 }

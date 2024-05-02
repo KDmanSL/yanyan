@@ -2,6 +2,7 @@ package com.yanyan.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -93,6 +95,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         stringRedisTemplate.opsForHash().putAll(LOGIN_USER_KEY+token,userMap);
         // 6.4 设置token有效期
         stringRedisTemplate.expire(LOGIN_USER_KEY+token,LOGIN_USER_TTL,TimeUnit.MINUTES);
+
+        // 获取当前日期精确到天
+        String today = DateUtil.today();
+        // 6.5 存储到hyperLog
+        stringRedisTemplate.opsForHyperLogLog().add(USER_UV_KEY+today, email);
+
         // 7.返回token
         return Result.ok(token);
     }
@@ -144,6 +152,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         stringRedisTemplate.opsForHash().putAll(LOGIN_USER_KEY+token,userMap);
         // 6.4 设置token有效期
         stringRedisTemplate.expire(LOGIN_USER_KEY+token,LOGIN_USER_TTL,TimeUnit.MINUTES);
+
+        // 获取当前日期精确到天
+        String today = DateUtil.today();
+        // 6.5 存储到hyperLog 存储uv
+        stringRedisTemplate.opsForHyperLogLog().add(USER_UV_KEY+today, email);
+
         // 7.返回token
         return Result.ok(token);
     }
