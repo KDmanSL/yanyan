@@ -84,6 +84,11 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course>
      */
     @Override
     public void saveCourses2Redis(Long expireSeconds){
+
+        // 这个地方改成存list而不是哈希，
+        // 然后我封装了一个自定义sql同时存对应的课程分类成的major信息，
+        // 之后查对应的course也是从对应的list中查找
+
         List<MajorCourseDTO> courseList = majorCourseMapper.selectCourseMajorWithDetails();
 
         List<String> strList = courseList.stream().map(JSONUtil::toJsonStr).collect(Collectors.toList());
