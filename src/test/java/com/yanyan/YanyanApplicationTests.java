@@ -28,6 +28,9 @@ class YanyanApplicationTests {
 	private PostService postService;
 	@Resource
 	private StringRedisTemplate stringRedisTemplate;
+
+	@Resource
+	private CourseService courseService;
 	@Test
 	void testQueryMajorById() {
 		System.out.println(majorService.queryMajorById(1L));
@@ -55,6 +58,11 @@ class YanyanApplicationTests {
 
 		Long count = stringRedisTemplate.opsForHyperLogLog().size("user:uv:"+today);
 		System.out.println(count);
+	}
+
+	@Test
+	void testSaveCourses2Redis() throws InterruptedException {
+		courseService.saveCourses2Redis(1L);
 	}
 
 }

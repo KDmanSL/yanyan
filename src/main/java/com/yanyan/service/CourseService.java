@@ -21,5 +21,9 @@ public interface CourseService extends IService<Course> {
      */
     void saveCourses2Redis(Long expireSeconds) throws InterruptedException;
 
+    // 带分页的查询（课程页面分类查询使用）
+    Result queryCoursesListByMajorIdWithPages(Long majorId, Integer current, Integer size);
+
+    // 不带分页的查询 （主页课程推荐使用）
     Result queryCoursesListByMajorId(Long majorId);
 }

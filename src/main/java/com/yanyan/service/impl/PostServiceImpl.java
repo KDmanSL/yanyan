@@ -41,7 +41,6 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
-    // TODO 查询某个用户的所有帖子
     @Override
     public Result queryAllPostList(Integer current) {
         int start = (current - 1) * DEFAULT_PAGE_SIZE;
@@ -71,7 +70,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
             return Result.ok(nowPageList, totalPage);
         }
         //3.缓存为空,缓存重建
-        savePost2Redis(30L);
+        savePost2Redis(Post_ALL_LIST_TTL);
         return queryAllPostList(current);
 //
 //        List<Post> postsList =  query().orderByDesc("postDate").list();
@@ -106,7 +105,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
         // 将数据写入redis
         List<String> strList = postList.stream().map(JSONUtil::toJsonStr).collect(Collectors.toList());
         stringRedisTemplate.opsForList().rightPushAll(RedisConstants.POST_ALL_LIST_KEY, strList);
-        stringRedisTemplate.expire(POST_ALL_LIST_KEY, POST_ALL_LIST_TTL, TimeUnit.MINUTES);
+        stringRedisTemplate.expire(POST_ALL_LIST_KEY, expireSeconds, TimeUnit.MINUTES);
     }
 
     @Override
@@ -139,7 +138,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
             return Result.ok(nowPageList, totalPage);
         }
         //3.缓存为空,缓存重建
-        savePost2Redis(30L);
+        savePost2Redis(Post_ALL_LIST_TTL);
         return queryAllPostList(current);
     }
 
@@ -163,7 +162,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
         post.setContent(content);
         save(post);
         // 缓存重建
-        savePost2Redis(30L);
+        savePost2Redis(Post_ALL_LIST_TTL);
         return Result.ok("帖子发表成功");
 
     }

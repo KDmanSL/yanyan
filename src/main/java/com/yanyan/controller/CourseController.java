@@ -2,6 +2,7 @@ package com.yanyan.controller;
 
 import com.yanyan.dto.Result;
 import com.yanyan.service.CourseService;
+import com.yanyan.service.MajorCourseService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -29,12 +30,28 @@ public class CourseController {
      * @return 课程列表
      */
     @GetMapping(value = "/listAll")
-    public Result queryAllCoursesList(Integer current, Integer size){
+    public Result queryAllCoursesList(@RequestParam(value = "current", defaultValue = "1") Integer current,
+                                      @RequestParam(value = "size", defaultValue = "10") Integer size){
         return courseService.queryAllCoursesList(current, size);
     }
 
     /**
-     * 根据专业分类查课程列表
+     * 根据专业分类查课程列表（带分页）用于课程分类
+     * @param majorId 专业id
+     * @param current 当前页码
+     * @param size 每页大小
+     *
+     * @return 课程列表
+     */
+    @GetMapping(value = "/listPage/{majorId}")
+    public Result queryCoursesListByMajorIdWithPages(@PathVariable("majorId") Long majorId,
+                                            @RequestParam(value = "current", defaultValue = "1") Integer current,
+                                            @RequestParam(value = "size", defaultValue = "10") Integer size){
+        return courseService.queryCoursesListByMajorIdWithPages(majorId, current, size);
+    }
+
+    /**
+     * 根据专业分类查课程列表（不带分页）用于用户推荐
      * @param majorId 专业id
      *
      * @return 课程列表

@@ -1,10 +1,15 @@
 package com.yanyan.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.yanyan.domain.Course;
 import com.yanyan.domain.MajorCourse;
+import com.yanyan.dto.Result;
 import com.yanyan.service.MajorCourseService;
 import com.yanyan.mapper.MajorCourseMapper;
+import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
 * @author 韶光善良君
@@ -14,7 +19,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class MajorCourseServiceImpl extends ServiceImpl<MajorCourseMapper, MajorCourse>
     implements MajorCourseService{
-
 }
 
 

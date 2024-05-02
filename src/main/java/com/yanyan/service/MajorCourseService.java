@@ -2,6 +2,7 @@ package com.yanyan.service;
 
 import com.yanyan.domain.MajorCourse;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.yanyan.dto.Result;
 
 /**
 * @author 韶光善良君
@@ -9,5 +10,4 @@ import com.baomidou.mybatisplus.extension.service.IService;
 * @createDate 2024-04-05 17:23:47
 */
 public interface MajorCourseService extends IService<MajorCourse> {
-
 }

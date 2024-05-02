@@ -2,6 +2,9 @@ package com.yanyan.mapper;
 
 import com.yanyan.domain.MajorCourse;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.yanyan.dto.MajorCourseDTO;
+
+import java.util.List;
 
 /**
 * @author 韶光善良君
@@ -10,7 +13,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 * @Entity com.yanyan.domain.MajorCourse
 */
 public interface MajorCourseMapper extends BaseMapper<MajorCourse> {
-
+    List<MajorCourseDTO> selectCourseMajorWithDetails();
 }
 
 

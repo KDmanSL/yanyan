@@ -20,14 +20,11 @@ public class RedisCachePreloader {
     private MajorService majorService;
     @Autowired
     private SchoolService schoolService;
-    @Autowired
-    private CourseService courseService;
     @PostConstruct
     public void preloadCache(){
         try {
             schoolService.saveSchools2Redis(CACHE_SCHOOL_TTL);
             majorService.saveMajor2Redis(CACHE_MAJOR_TTL);
-            courseService.saveCourses2Redis(CACHE_COURSE_TTL);
         }catch (Exception e){
             log.error("缓存预热失败:",e);
         }
