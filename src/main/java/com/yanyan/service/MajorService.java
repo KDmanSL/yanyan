@@ -12,6 +12,7 @@ import com.yanyan.dto.Result;
 public interface MajorService extends IService<Major> {
     Major queryMajorById(Long id);
     Major queryMajorByName(String name);
-
     void saveMajor2Redis(Long expireSeconds) throws InterruptedException;
+
+    Result queryAllMajorsList() throws InterruptedException;
 }

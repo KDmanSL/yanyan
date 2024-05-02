@@ -40,7 +40,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course>
 
     @Override
     public Result queryAllCoursesList(Integer current, Integer size) {
-        //TODO 页面分页查找 需要参数Integer current, Integer size current当前页面 size页面大小
+
         int start = (current - 1) * size;
         int end = current * size - 1;
 

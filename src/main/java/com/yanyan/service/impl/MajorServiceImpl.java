@@ -15,6 +15,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -46,6 +47,20 @@ public class MajorServiceImpl extends ServiceImpl<MajorMapper, Major>
             redisData.setData(major);
             stringRedisTemplate.opsForValue().set(CACHE_MAJOR_KEY + major.getId(), JSONUtil.toJsonStr(redisData));
         }
+    }
+
+    @Override
+    public Result queryAllMajorsList() throws InterruptedException {
+        List<String> listCache = stringRedisTemplate.opsForList().range(MAJOR_ALL_LIST_KEY, 0,-1);
+        if(listCache != null && !listCache.isEmpty()){
+            List<Major> majorList = listCache.stream()
+                    .map(str -> (Major) JSONUtil.toBean(str, Major.class, true))
+                    .sorted(Comparator.comparingLong(Major::getId))
+                    .collect(Collectors.toList());
+            return Result.ok(majorList);
+        }
+        saveMajor2Redis(CACHE_MAJOR_TTL);
+        return queryAllMajorsList();
     }
 
     @Override
