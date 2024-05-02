@@ -59,8 +59,15 @@ public class MajorServiceImpl extends ServiceImpl<MajorMapper, Major>
                     .collect(Collectors.toList());
             return Result.ok(majorList);
         }
-        saveMajor2Redis(CACHE_MAJOR_TTL);
-        return queryAllMajorsList();
+        //3.缓存为空，查询数据库
+        List<Major> majorsList = list();
+
+        // 将数据写入redis
+        List<String> strList = majorsList.stream().map(JSONUtil::toJsonStr).collect(Collectors.toList());
+        stringRedisTemplate.opsForList().rightPushAll(RedisConstants.MAJOR_ALL_LIST_KEY, strList);
+        stringRedisTemplate.expire(MAJOR_ALL_LIST_KEY, MAJOR_ALL_LIST_TTL, TimeUnit.MINUTES);
+
+        return Result.ok(majorsList);
     }
 
     @Override

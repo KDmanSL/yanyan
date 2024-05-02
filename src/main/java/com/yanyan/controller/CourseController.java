@@ -28,8 +28,19 @@ public class CourseController {
      * 查询全部课程列表
      * @return 课程列表
      */
-    @GetMapping(value = "/list")
+    @GetMapping(value = "/listAll")
     public Result queryAllCoursesList(Integer current, Integer size){
         return courseService.queryAllCoursesList(current, size);
+    }
+
+    /**
+     * 根据专业分类查课程列表
+     * @param majorId 专业id
+     *
+     * @return 课程列表
+     */
+    @GetMapping(value = "/list/{majorId}")
+    public Result queryCoursesListByMajorId(@PathVariable("majorId") Long majorId){
+        return courseService.queryCoursesListByMajorId(majorId);
     }
 }

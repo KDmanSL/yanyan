@@ -25,7 +25,7 @@ public class MajorController {
      * @return 专业列表
      * @throws InterruptedException 线程中断异常
      */
-    @GetMapping(value = "/listAll")
+    @GetMapping(value = "/list")
     public Result queryAllMajorsList() throws InterruptedException {
         return majorService.queryAllMajorsList();
     }
@@ -36,8 +36,8 @@ public class MajorController {
      *
      * @return 专业列表
      */
-    @GetMapping(value = "/list")
-    public Result queryMajorsListBySchoolName(@RequestParam(value = "schoolName") String schoolName) {
+    @GetMapping(value = "/{schoolName}")
+    public Result queryMajorsListBySchoolName(@PathVariable("schoolName") String schoolName) {
         List<Major> majorList = schoolMajorService.queryMajorNameBySchoolName(schoolName);
         if(majorList.isEmpty()){
             return Result.fail("未查询到专业信息");
