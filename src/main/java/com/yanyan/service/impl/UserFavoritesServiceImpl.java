@@ -16,7 +16,6 @@ import java.util.List;
 * @description 针对表【yy_user_favorites(用户收藏的课程)】的数据库操作Service实现
 * @createDate 2024-04-05 17:24:13
 */
-//TODO 根据用户id查询收藏的课程，通过用户id添加收藏课程id
 @Service
 public class UserFavoritesServiceImpl extends ServiceImpl<UserFavoritesMapper, UserFavorites>
     implements UserFavoritesService{
