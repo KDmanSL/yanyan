@@ -37,8 +37,8 @@ public class PostController {
      * @param current 当前页
      * @return 帖子信息 + 总页数
      */
-    @GetMapping(value = "/user")
-    public Result queryPostListByUserId(@RequestParam(value = "userId") Long userId,
+    @GetMapping(value = "/post/{userId}")
+    public Result queryPostListByUserId(@PathVariable("userId") Long userId,
                                         @RequestParam(value = "current", defaultValue = "1") Integer current) {
         return postService.queryPostListByUserId(userId, current);
     }
@@ -50,8 +50,8 @@ public class PostController {
      * @param current 当前页
      * @return 帖子信息 + 总页数
      */
-    @GetMapping(value = "/reply/user")
-    public Result queryPostReplyListByUserId(@RequestParam(value = "userId") Long userId,
+    @GetMapping(value = "/reply/{userId}")
+    public Result queryPostReplyListByUserId(@PathVariable("userId") Long userId,
                                              @RequestParam(value = "current", defaultValue = "1") Integer current) {
         return postReplyService.queryPostReplyWithUserInfoByUserId(userId, current);
     }

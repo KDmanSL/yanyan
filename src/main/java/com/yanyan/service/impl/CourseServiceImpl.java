@@ -84,7 +84,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course>
                     .map(str -> (MajorCourseDTO) JSONUtil.toBean(str, MajorCourseDTO.class, true))
                     .distinct() // 去除同样课程不同专业的重复课程
                     .collect(Collectors.toList());
-
+            Long totalPage = (long) Math.ceil((double) coursesList.size() / size);
             // 检查分页索引，防止越界
             int listSize = coursesList.size();
             start = Math.max(start, 0); // 确保开始索引不是负数
@@ -97,7 +97,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course>
 
             // 安全地进行分页
             List<MajorCourseDTO> nowPageList = coursesList.subList(start, end + 1);
-            return Result.ok(nowPageList);
+            return Result.ok(nowPageList, totalPage);
         }
 
         // 缓存为空，则重建缓存
@@ -142,6 +142,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course>
                     .filter(majorCourseDTO -> majorCourseDTO.getMajorId().equals(majorId))
                     .sorted(Comparator.comparingLong(MajorCourseDTO::getCourseId))
                     .collect(Collectors.toList());
+            Long totalPage = (long) Math.ceil((double) coursesList.size() / size);
             // 检查分页索引，防止越界
             int listSize = coursesList.size();
             start = Math.max(start, 0); // 确保开始索引不是负数
@@ -154,7 +155,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course>
 
             // 安全地进行分页
             List<MajorCourseDTO> nowPageList = coursesList.subList(start, end + 1);
-            return Result.ok(nowPageList);
+            return Result.ok(nowPageList, totalPage);
         }
 
         // 缓存为空，则重建缓存
