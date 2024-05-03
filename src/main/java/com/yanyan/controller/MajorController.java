@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Slf4j
-@RequestMapping(value = "/course")
+@RequestMapping(value = "/major")
 @CrossOrigin
 @RestController
 public class MajorController {
