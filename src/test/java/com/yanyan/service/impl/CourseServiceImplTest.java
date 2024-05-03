@@ -37,4 +37,9 @@ class CourseServiceImplTest {
         }
 
     }
+    @Test
+    void queryCourseById(){
+        Result result = courseService.queryCourseById(12L);
+        System.out.println(result);
+    }
 }

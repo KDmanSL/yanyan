@@ -15,6 +15,7 @@ import static com.yanyan.utils.RedisConstants.*;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -35,8 +36,29 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course>
     @Override
     public Result queryCourseById(Long id) {
         // TODO 添加redis
-        Course course = this.getById(id);
-        return Result.ok(course);
+
+        //1.从redis查询商铺列表缓存
+        List<String> listCache = stringRedisTemplate.opsForList().range(COURSE_ALL_LIST_KEY, 0, -1);
+        //2.判断是否为空
+        if (listCache != null && !listCache.isEmpty()) {
+            //不为空，返回列表
+            List<MajorCourseDTO> coursesList = listCache.stream()
+                    .map(str -> (MajorCourseDTO) JSONUtil.toBean(str, MajorCourseDTO.class, true))
+                    .collect(Collectors.toList());
+            // 使用流式操作和过滤器查找特定id的MajorCourseDTO对象
+            Optional<MajorCourseDTO> result = coursesList.stream()
+                    .filter(course -> course.getCourseId() == id)
+                    .findFirst();
+
+            if (result.isPresent()) {
+                return Result.ok(result.get());
+            }
+            return Result.fail("未找到id为"+id+"的内容");
+        }
+        // 缓存为空，则重建缓存
+        saveCourses2Redis(COURSE_ALL_LIST_TTL);
+
+        return queryCourseById(id);
     }
     
 
@@ -53,7 +75,6 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course>
             //不为空，返回列表
             List<MajorCourseDTO> coursesList = listCache.stream()
                     .map(str -> (MajorCourseDTO) JSONUtil.toBean(str, MajorCourseDTO.class, true))
-                    .sorted(Comparator.comparingLong(MajorCourseDTO::getCourseId))
                     .collect(Collectors.toList());
             // 检查分页索引，防止越界
             int listSize = coursesList.size();
