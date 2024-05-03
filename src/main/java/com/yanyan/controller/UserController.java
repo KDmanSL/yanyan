@@ -1,9 +1,11 @@
 package com.yanyan.controller;
 
+import com.yanyan.domain.UserFavorites;
 import com.yanyan.dto.LoginFormDTO;
 import com.yanyan.dto.RegisterFormDTO;
 import com.yanyan.dto.Result;
 import com.yanyan.service.UserDetailService;
+import com.yanyan.service.UserFavoritesService;
 import com.yanyan.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpSession;
@@ -19,6 +21,9 @@ public class UserController {
     private UserService userService;
     @Resource
     private UserDetailService userDetailService;
+
+    @Resource
+    private UserFavoritesService userFavoritesService;
 
     /**
      * 发送邮箱验证码
@@ -67,6 +72,16 @@ public class UserController {
                                 @RequestParam("majorName") String majorName,
                                 @RequestParam(value = "session" ,required = false) Integer session){
         return userDetailService.setSchoolMajorSessionByUserId(schoolName,majorName,session);
+    }
+
+    /**
+     * 获取用户收藏的课程
+     * @return 用户收藏的课程
+     */
+    @GetMapping("/favorites")
+    public Result getUserFavorites(@RequestParam(value = "current", defaultValue = "1") Integer current,
+                                   @RequestParam(value = "size", defaultValue = "10") Integer size){
+        return userFavoritesService.queryUserFavoritesByUserId(current, size);
     }
 
 }

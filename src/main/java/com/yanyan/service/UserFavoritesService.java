@@ -15,4 +15,6 @@ public interface UserFavoritesService extends IService<UserFavorites> {
     Result queryUserFavoritesByUserId(Integer current, Integer size);
 
     Result addUserFavorites(Long courseId);
+
+    Boolean isFavorite(Long courseId);
 }

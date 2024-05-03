@@ -13,4 +13,10 @@
     <sql id="Base_Column_List">
         id,userId,courseId
     </sql>
+    <select id="selectCourseInfoByUserId" resultType="com.yanyan.domain.Course">
+        SELECT c.*
+        FROM yy_user_favorites uf
+                 JOIN yy_course c ON uf.courseId = c.id
+        WHERE uf.userId = #{userId}
+    </select>
 </mapper>

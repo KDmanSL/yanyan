@@ -1,7 +1,10 @@
 package com.yanyan.mapper;
 
+import com.yanyan.domain.Course;
 import com.yanyan.domain.UserFavorites;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+
+import java.util.List;
 
 /**
 * @author 韶光善良君
@@ -10,6 +13,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 * @Entity com.yanyan.domain.UserFavorites
 */
 public interface UserFavoritesMapper extends BaseMapper<UserFavorites> {
+    List<Course> selectCourseInfoByUserId(Long userId);
 
 }
 

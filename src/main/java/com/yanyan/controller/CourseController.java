@@ -3,6 +3,7 @@ package com.yanyan.controller;
 import com.yanyan.dto.Result;
 import com.yanyan.service.CourseService;
 import com.yanyan.service.MajorCourseService;
+import com.yanyan.service.UserFavoritesService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 public class CourseController {
     @Resource
     CourseService courseService;
+    @Resource
+    UserFavoritesService userFavoritesService;
 
     /**
      * 根据id查询课程
@@ -59,5 +62,15 @@ public class CourseController {
     @GetMapping(value = "/list/{majorId}")
     public Result queryCoursesListByMajorId(@PathVariable("majorId") Long majorId){
         return courseService.queryCoursesListByMajorId(majorId);
+    }
+
+    /**
+     * 添加课程收藏（若已收藏则取消收藏）
+     * @param courseId 课程id
+     * @return 执行结果
+     */
+    @PostMapping(value = "/favorite")
+    public Result addFavorite(@RequestParam("courseId") Long courseId){
+        return userFavoritesService.addUserFavorites(courseId);
     }
 }
