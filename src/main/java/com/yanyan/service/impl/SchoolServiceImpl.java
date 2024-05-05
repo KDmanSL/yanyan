@@ -11,6 +11,7 @@ import com.yanyan.utils.RedisConstants;
 import com.yanyan.utils.RedisData;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RedissonClient;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 

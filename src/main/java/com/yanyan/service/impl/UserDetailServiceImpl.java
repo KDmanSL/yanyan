@@ -13,19 +13,13 @@ import com.yanyan.service.SchoolMajorService;
 import com.yanyan.service.SchoolService;
 import com.yanyan.service.UserDetailService;
 import com.yanyan.mapper.UserDetailMapper;
-import com.yanyan.utils.CacheClient;
 import com.yanyan.utils.UserHolder;
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-
-import static com.yanyan.utils.RedisConstants.CACHE_SCHOOL_KEY;
-import static com.yanyan.utils.RedisConstants.CACHE_SCHOOL_TTL;
 
 /**
 * @author 韶光善良君

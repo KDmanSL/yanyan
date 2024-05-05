@@ -6,6 +6,8 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -22,8 +24,10 @@ public class CacheClient {
     private static final Long CACHE_NULL_TTL = 2L;//设置空值过期时间
     private static final String CACHE_LOCK= "cache:lock:";
     private final StringRedisTemplate stringRedisTemplate;
-    public CacheClient(StringRedisTemplate stringRedisTemplate) {
+    private final RedissonClient redissonClient;
+    public CacheClient(StringRedisTemplate stringRedisTemplate,RedissonClient redissonClient) {
         this.stringRedisTemplate = stringRedisTemplate;
+        this.redissonClient = redissonClient;
     }
 
 
@@ -117,7 +121,8 @@ public class CacheClient {
         //6.缓存重建
         //6.1获取互斥锁
         String lockKey = CACHE_LOCK + id;
-        boolean isLock = tryLock(lockKey);
+        RLock lock = redissonClient.getLock(lockKey);
+        boolean isLock = lock.tryLock();
         //6.2判断是否获取锁成功
         if (isLock) {
             //6.3获取成功，开启独立线程，实现缓存重建
@@ -131,7 +136,7 @@ public class CacheClient {
                     throw new RuntimeException(e);
                 }finally {
                     //释放锁
-                    unlock(lockKey);
+                    lock.unlock();
                 }
             });
         }
@@ -146,19 +151,6 @@ public class CacheClient {
         private LocalDateTime expireTime;
         private Object data;
     }
-    /**
-     * 加锁
-     */
-    private boolean tryLock(String key){
-        Boolean flag = stringRedisTemplate.opsForValue().setIfAbsent(key, "1", 10, TimeUnit.SECONDS);
-        return BooleanUtil.isTrue(flag);
-    }
 
-    /**
-     * 释放锁
-     */
-    private void unlock(String key){
-        stringRedisTemplate.delete(key);
-    }
 }
 
