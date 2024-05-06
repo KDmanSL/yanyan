@@ -53,7 +53,7 @@ public class SchoolServiceImpl extends ServiceImpl<SchoolMapper, School>
                     .sorted(Comparator.comparingLong(School::getRanking))
                     .collect(Collectors.toList());
             // 检测是否有211筛选
-            if(is211 == 1){
+            if(is211!=null && is211 == 1){
                 schoolsList = schoolsList.stream()
                         .filter(school -> school.getIs211() == 1)
                         .collect(Collectors.toList());
@@ -84,7 +84,7 @@ public class SchoolServiceImpl extends ServiceImpl<SchoolMapper, School>
         stringRedisTemplate.opsForList().rightPushAll(RedisConstants.SCHOOL_ALL_LIST_KEY, strList);
         stringRedisTemplate.expire(SCHOOL_ALL_LIST_KEY, SCHOOL_ALL_LIST_TTL, TimeUnit.MINUTES);
         // 检测是否有211筛选
-        if(is211 == 1){
+        if(is211!=null && is211 == 1){
             schoolsList = schoolsList.stream()
                     .filter(school -> school.getIs211() == 1)
                     .collect(Collectors.toList());
@@ -154,7 +154,7 @@ public class SchoolServiceImpl extends ServiceImpl<SchoolMapper, School>
                     .sorted(Comparator.comparingLong(School::getRanking))
                     .collect(Collectors.toList());
             // 检测是否有211筛选
-            if(is211 == 1){
+            if(is211!=null && is211 == 1){
                 schoolsList = schoolsList.stream()
                         .filter(school -> school.getIs211() == 1)
                         .collect(Collectors.toList());
@@ -192,7 +192,7 @@ public class SchoolServiceImpl extends ServiceImpl<SchoolMapper, School>
                 .filter(school -> school.getLocation().equals(area))
                 .collect(Collectors.toList());
         // 检测是否有211筛选
-        if(is211 == 1){
+        if(is211!=null && is211 == 1){
             nowPageList = nowPageList.stream()
                     .filter(school -> school.getIs211() == 1)
                     .collect(Collectors.toList());
