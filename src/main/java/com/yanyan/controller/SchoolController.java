@@ -65,6 +65,18 @@ public class SchoolController {
         return schoolService.querySchoolByArea(is211, area, current, size);
     }
 
+    /**
+     * 根据学校名称查询学校
+     *
+     * @param name 学校名称
+     * @return 学校信息
+     */
+    @GetMapping(value = "/name/{name}")
+    public Result querySchoolByName(@PathVariable("name") String name,
+                                    @RequestParam(value = "current", defaultValue = "1") Integer current,
+                                    @RequestParam(value = "size", defaultValue = "10") Integer size) {
+        return schoolService.querySchoolListByName(name, current, size);
+    }
 
 
 }
