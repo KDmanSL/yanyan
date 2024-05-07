@@ -18,4 +18,10 @@ public interface UserService extends IService<User> {
     Result login(LoginFormDTO loginForm, HttpSession session);
 
     Result register(RegisterFormDTO registerFormDTO, HttpSession session);
+
+    Result queryUserList(Integer current, Integer size);
+
+    Result setUserPermission(Long userId, String role);
+
+    Result deleteUser(Long userId);
 }

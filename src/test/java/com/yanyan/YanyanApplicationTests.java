@@ -3,6 +3,7 @@ package com.yanyan;
 import cn.hutool.core.date.DateUtil;
 import com.yanyan.dto.PostReplyDTO;
 import com.yanyan.service.*;
+import com.yanyan.utils.RSASecurityUtils;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,7 +29,8 @@ class YanyanApplicationTests {
 	private PostService postService;
 	@Resource
 	private StringRedisTemplate stringRedisTemplate;
-
+	@Resource
+	private RSASecurityUtils rsaSecurityUtils;
 	@Resource
 	private CourseService courseService;
 	@Test
@@ -64,5 +66,14 @@ class YanyanApplicationTests {
 	void testSaveCourses2Redis() throws InterruptedException {
 		courseService.saveCourses2Redis(1L);
 	}
+
+	@Test
+	void testRSA(){
+		String miwen = rsaSecurityUtils.encrypt("123456");
+		System.out.println(miwen);
+		String mingwen = rsaSecurityUtils.decrypt(miwen);
+		System.out.println(mingwen);
+	}
+
 
 }
