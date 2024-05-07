@@ -73,4 +73,19 @@ public class CourseController {
     public Result addFavorite(@RequestParam("courseId") Long courseId){
         return userFavoritesService.addUserFavorites(courseId);
     }
+
+    /**
+     * 根据课程名称模糊查询
+     *
+     * @param name 课程名称
+     * @param current 当前页码
+     * @param size 每页大小
+     * @return 课程列表
+     */
+    @GetMapping(value = "/name/{name}")
+    public Result queryCourseListByName(@PathVariable("name") String name,
+                                        @RequestParam(value = "current", defaultValue = "1") Integer current,
+                                        @RequestParam(value = "size", defaultValue = "10") Integer size){
+        return courseService.queryCourseListByName(name, current, size);
+    }
 }

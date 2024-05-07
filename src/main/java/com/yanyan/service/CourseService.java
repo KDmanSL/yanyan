@@ -26,4 +26,6 @@ public interface CourseService extends IService<Course> {
 
     // 不带分页的查询 （主页课程推荐使用）
     Result queryCoursesListByMajorId(Long majorId);
+
+    Result queryCourseListByName(String name, Integer current, Integer size);
 }

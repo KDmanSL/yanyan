@@ -3,7 +3,7 @@ package com.yanyan.service.impl;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yanyan.domain.Course;
-import com.yanyan.domain.UserFavorites;
+import com.yanyan.domain.School;
 import com.yanyan.dto.CourseDetailDTO;
 import com.yanyan.dto.MajorCourseDTO;
 import com.yanyan.dto.Result;
@@ -11,7 +11,6 @@ import com.yanyan.mapper.MajorCourseMapper;
 import com.yanyan.service.CourseService;
 import com.yanyan.mapper.CourseMapper;
 import com.yanyan.service.UserFavoritesService;
-import com.yanyan.utils.UserHolder;
 import jakarta.annotation.Resource;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,6 @@ import static com.yanyan.utils.RedisConstants.*;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -183,7 +181,38 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course>
         return queryCoursesListByMajorId(majorId);
     }
 
-}
+    @Override
+    public Result queryCourseListByName(String name, Integer current, Integer size) {
+        int start = (current - 1) * size;
+        int end = current * size - 1;
+        List<String> listCache = stringRedisTemplate.opsForList().range(COURSE_ALL_LIST_KEY, 0, -1);
+        if (listCache != null && !listCache.isEmpty()) {
+            //不为空，返回列表
+            List<MajorCourseDTO> coursesList = listCache.stream()
+                    .map(str -> (MajorCourseDTO) JSONUtil.toBean(str, MajorCourseDTO.class, true))
+                    .filter(courseDTO -> courseDTO.getCourseName().toLowerCase().contains(name.toLowerCase()))
+                    .collect(Collectors.toList());
+
+            if (coursesList.isEmpty()) {
+                return Result.fail("未找到课程信息");
+            }
+            Long totalPage = (long) Math.ceil((double) coursesList.size() / size);
+
+            start = Math.max(start, 0);
+            end = Math.min(end, coursesList.size() - 1);
+            if (start >= coursesList.size()) {
+                return Result.fail("超出页面请求范围");
+            }
+            // 返回当前页数据
+            List<MajorCourseDTO> nowPageList = coursesList.subList(start, end + 1);
+
+            return Result.ok(nowPageList, totalPage);
+        }
+        // 缓存为空，则重建缓存
+        saveCourses2Redis(COURSE_ALL_LIST_TTL);
+        return queryCourseListByName(name, current, size);
+    }
+    }
 
 
 
