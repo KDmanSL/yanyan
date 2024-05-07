@@ -74,7 +74,27 @@ public class PostController {
      * @return 添加结果
      */
     @PostMapping(value = "/reply/add")
-    public Result addPostReply(@RequestBody AddPostReplyDTO addPostReplyDTO) throws InterruptedException {
+    public Result addPostReply(@RequestBody AddPostReplyDTO addPostReplyDTO){
         return postReplyService.addPostReply(addPostReplyDTO);
+    }
+
+    /**
+     * 删除帖子 只允许本人或者管理员删帖
+     * @param postId 帖子id
+     * @return 删除结果
+     */
+    @PostMapping("/post/delete")
+    public Result deletePost(@RequestParam("postId") Long postId) {
+        return postService.deletePost(postId);
+    }
+
+    /**
+     * 删除帖子回复 只允许本人或者贴主或者管理员删帖
+     * @param postReplyId 帖子回复id
+     * @return 删除结果
+     */
+    @PostMapping("/reply/delete")
+    public Result deletePostReply(@RequestParam("postReplyId") Long postReplyId) {
+        return postReplyService.deletePostReply(postReplyId);
     }
 }

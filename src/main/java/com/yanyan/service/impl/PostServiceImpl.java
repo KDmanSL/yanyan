@@ -11,6 +11,7 @@ import com.yanyan.mapper.PostReplyMapper;
 import com.yanyan.service.PostReplyService;
 import com.yanyan.service.PostService;
 import com.yanyan.mapper.PostMapper;
+import com.yanyan.service.UserService;
 import com.yanyan.utils.RedisConstants;
 import com.yanyan.utils.RegexUtils;
 import com.yanyan.utils.UserHolder;
@@ -38,6 +39,8 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
     private PostMapper postMapper;
     @Resource
     PostReplyMapper postReplyMapper;
+    @Resource
+    private UserService userService;
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
@@ -165,6 +168,25 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
         savePost2Redis(Post_ALL_LIST_TTL);
         return Result.ok("帖子发表成功");
 
+    }
+
+    @Override
+    public Result deletePost(Long postId) {
+        // 核验身份 帖子主人或者系统管理员允许删除帖子
+        Long userId = UserHolder.getUser().getId();
+        Post post = getById(postId);
+        if (post == null) {
+            return Result.fail("帖子不存在");
+        }
+        Long userId2 = post.getUserid();
+        String role = userService.getById(userId).getRole();
+        if (role.equals("adm") || userId.equals(userId2)) {
+            removeById(postId);
+            // 缓存重建
+            savePost2Redis(Post_ALL_LIST_TTL);
+            return Result.ok("帖子删除成功");
+        }
+        return Result.fail("你无法删除该帖子");
     }
 }
 

@@ -19,4 +19,6 @@ public interface PostService extends IService<Post> {
     Result queryPostListByUserId(Long userId, Integer current);
 
     Result addPost(AddPostDTO postDTO);
+
+    Result deletePost(Long postId);
 }

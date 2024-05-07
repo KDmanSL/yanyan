@@ -12,5 +12,7 @@ import com.yanyan.dto.Result;
 */
 public interface PostReplyService extends IService<PostReply> {
     Result queryPostReplyWithUserInfoByUserId(Long userId, Integer current);
-    Result addPostReply(AddPostReplyDTO addPostReplyDTO) throws InterruptedException;
+    Result addPostReply(AddPostReplyDTO addPostReplyDTO);
+
+    Result deletePostReply(Long postReplyId) ;
 }

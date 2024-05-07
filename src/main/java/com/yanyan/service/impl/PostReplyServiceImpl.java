@@ -1,6 +1,7 @@
 package com.yanyan.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.yanyan.domain.Post;
 import com.yanyan.domain.PostReply;
 import com.yanyan.dto.AddPostReplyDTO;
 import com.yanyan.dto.PostReplyDTO;
@@ -8,13 +9,16 @@ import com.yanyan.dto.Result;
 import com.yanyan.service.PostReplyService;
 import com.yanyan.mapper.PostReplyMapper;
 import com.yanyan.service.PostService;
+import com.yanyan.service.UserService;
 import com.yanyan.utils.RegexUtils;
 import com.yanyan.utils.UserHolder;
 import jakarta.annotation.Resource;
+import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com.yanyan.utils.RedisConstants.Post_ALL_LIST_TTL;
 import static com.yanyan.utils.SystemConstants.DEFAULT_PAGE_SIZE;
 
 /**
@@ -27,7 +31,8 @@ public class PostReplyServiceImpl extends ServiceImpl<PostReplyMapper, PostReply
     implements PostReplyService{
     @Resource
     PostReplyMapper postReplyMapper;
-
+    @Resource
+    private UserService userService;
     @Resource
     PostService postService;
 
@@ -55,7 +60,7 @@ public class PostReplyServiceImpl extends ServiceImpl<PostReplyMapper, PostReply
     }
 
     @Override
-    public Result addPostReply(AddPostReplyDTO addPostReplyDTO) throws InterruptedException {
+    public Result addPostReply(AddPostReplyDTO addPostReplyDTO){
         String content = addPostReplyDTO.getContent();
         // 验证帖子回复内容
         if (RegexUtils.isPostContentInvalid(content)) {
@@ -71,8 +76,38 @@ public class PostReplyServiceImpl extends ServiceImpl<PostReplyMapper, PostReply
         postReply.setUserid(userId);
         save(postReply);
         // 帖子缓存重建
-        postService.savePost2Redis(30L);
+        try {
+            postService.savePost2Redis(Post_ALL_LIST_TTL);
+        }catch (Exception e){
+            log.error("缓存重建失败：" + e.getMessage());
+        }
         return Result.ok("回复发表成功");
+    }
+
+    @Override
+    public Result deletePostReply(Long postReplyId){
+        // 核验身份 帖子主人或者系统管理员允许删除帖子
+        Long userId = UserHolder.getUser().getId(); // 当前用户id
+        PostReply postReply = getById(postReplyId);
+        if (postReply == null) {
+            return Result.fail("回复不存在");
+        }
+        Long userId2 = postReply.getUserid(); // 回复用户id
+        Long postId = postReply.getPostid();
+        Post post = postService.getById(postId);
+        Long userId3 = post.getUserid(); // 帖子用户id
+        String role = userService.getById(userId).getRole();
+        if (role.equals("adm") || userId.equals(userId2) || userId.equals(userId3)) {
+            removeById(postReplyId);
+            // 缓存重建
+            try {
+                postService.savePost2Redis(Post_ALL_LIST_TTL);
+            }catch (Exception e){
+                log.error("缓存重建失败：" + e.getMessage());
+            }
+            return Result.ok("回复删除成功");
+        }
+        return Result.fail("你无法删除回复");
     }
 
 
