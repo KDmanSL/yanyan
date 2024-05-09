@@ -13,15 +13,23 @@ Spring:
       password: redis
       lettuce:
         pool:
-          max-active: 10
-          max-idle: 10
+          max-active: 20
+          max-idle: 20
           min-idle: 1
           time-between-eviction-runs: 10s
+      database: 0
   jackson:
     default-property-inclusion: non_null # JSON处理时忽略非空字段
   ai:
     openai:
       api-key: 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
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
 logging:
   level:
     com.yanyan: debug
+server:
+  tomcat:
+    max-swallow-size: 100MB

@@ -1,5 +1,8 @@
 package com.yanyan.service.impl;
 
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.conditions.update.UpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -8,27 +11,27 @@ import com.yanyan.domain.School;
 import com.yanyan.domain.UserDetail;
 import com.yanyan.dto.Result;
 import com.yanyan.dto.UserDetailDTO;
-import com.yanyan.service.MajorService;
-import com.yanyan.service.SchoolMajorService;
-import com.yanyan.service.SchoolService;
-import com.yanyan.service.UserDetailService;
+import com.yanyan.service.*;
 import com.yanyan.mapper.UserDetailMapper;
 import com.yanyan.utils.UserHolder;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
-* @author 韶光善良君
-* @description 针对表【yy_user_detail(考研信息)】的数据库操作Service实现
-* @createDate 2024-04-15 12:33:57
-*/
+ * @author 韶光善良君
+ * @description 针对表【yy_user_detail(考研信息)】的数据库操作Service实现
+ * @createDate 2024-04-15 12:33:57
+ */
 @Service
 public class UserDetailServiceImpl extends ServiceImpl<UserDetailMapper, UserDetail>
-    implements UserDetailService{
+        implements UserDetailService {
 
     @Autowired
     private SchoolService schoolService;
@@ -36,6 +39,9 @@ public class UserDetailServiceImpl extends ServiceImpl<UserDetailMapper, UserDet
     private MajorService majorService;
     @Resource
     private SchoolMajorService schoolMajorService;
+    @Resource
+    private BaiduAIService baiduAIService;
+
     @Override
     public Result queryUserDetail() {
         Long userId = UserHolder.getUser().getId();
@@ -66,15 +72,15 @@ public class UserDetailServiceImpl extends ServiceImpl<UserDetailMapper, UserDet
     @Override
     public Result setSchoolMajorSessionByUserId(String schoolName, String majorName, Integer session) {
 
-        if(Objects.equals(schoolName, "") || Objects.equals(majorName, "") || session == null){
+        if (Objects.equals(schoolName, "") || Objects.equals(majorName, "") || session == null) {
             return Result.fail("请输入完整信息");
         }
         List<Major> majorList = schoolMajorService.queryMajorNameBySchoolName(schoolName);
-        if(majorList.isEmpty()){
+        if (majorList.isEmpty()) {
             return Result.fail("学校不存在");
         }
         List<Major> majorList2 = majorList.stream().filter(major -> major.getName().equals(majorName)).toList();
-        if(majorList2.isEmpty()){
+        if (majorList2.isEmpty()) {
             return Result.fail("该院校没有该专业");
         }
 
@@ -91,9 +97,51 @@ public class UserDetailServiceImpl extends ServiceImpl<UserDetailMapper, UserDet
     }
 
     @Override
-    public Result setScoreByUserId(Double score) {
+    public Result setScoreByUserId(String score, MultipartFile multipartFile) {
         // TODO 设置用户分数
-        return null;
+        // 先校验用户是否已经设置要考研的学校
+        Long userId = UserHolder.getUser().getId();
+        UserDetail userDetail = query().eq("userId", userId).one();
+        if (userDetail.getSchoolid()==null) {
+            return Result.fail("请先设置考研学校专业");
+        }
+        // 用户已经设置学校 获取学校名称 用于检测
+        String schoolName = schoolService.querySchoolById(userDetail.getSchoolid()).getName();
+
+        // 图像识别
+        String ocrResult = baiduAIService.actionOcr(multipartFile);
+        if (Objects.equals(ocrResult, "") || ocrResult == null) {
+            return Result.fail("图片解析失败");
+        }
+        JSONObject jsonResult = JSONUtil.parseObj(ocrResult);
+        JSONArray wordsResult = jsonResult.getJSONArray("words_result");
+
+        boolean foundSchool = false;
+        boolean foundScore = false;  // 用于标记是否找到了“总分”字样
+        for (Object item : wordsResult) {
+
+            JSONObject wordItem = (JSONObject) item;
+            String words = wordItem.getStr("words");
+
+            if (words.contains(score)) {
+                foundScore = true;  // 标记已找到该分数
+            }
+            if (words.contains(schoolName)){
+                foundSchool = true;
+            }
+        }
+        if (!foundSchool) {
+            return Result.fail("图片无法核实学校，请咨询管理员");
+        }
+        if (!foundScore) {
+            return Result.fail("图片无法核实成绩信息，请咨询管理员");
+        }
+        // 全部通过 将分数存储到用户的数据库中
+        UserDetail userDetail2 = new UserDetail();
+        userDetail2.setScore(Double.parseDouble(score));
+        update().eq("userId", userId).update(userDetail2);
+
+        return Result.ok("添加成绩成功");
     }
 }
 

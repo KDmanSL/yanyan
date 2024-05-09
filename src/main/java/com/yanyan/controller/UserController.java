@@ -4,6 +4,7 @@ import com.yanyan.domain.UserFavorites;
 import com.yanyan.dto.LoginFormDTO;
 import com.yanyan.dto.RegisterFormDTO;
 import com.yanyan.dto.Result;
+import com.yanyan.service.BaiduAIService;
 import com.yanyan.service.UserDetailService;
 import com.yanyan.service.UserFavoritesService;
 import com.yanyan.service.UserService;
@@ -11,6 +12,7 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @RestController
@@ -24,6 +26,7 @@ public class UserController {
 
     @Resource
     private UserFavoritesService userFavoritesService;
+
 
     /**
      * 发送邮箱验证码
@@ -82,6 +85,19 @@ public class UserController {
     public Result getUserFavorites(@RequestParam(value = "current", defaultValue = "1") Integer current,
                                    @RequestParam(value = "size", defaultValue = "10") Integer size){
         return userFavoritesService.queryUserFavoritesByUserId(current, size);
+    }
+
+    /**
+     * 设置用户分数（上传图片认证）
+     * @param multipartFile 图片文件
+     * @param score 分数
+     * @return 图片识别结果
+     */
+    @PostMapping("/score")
+    public Result setUserScore(
+            @RequestParam("score") String score,
+            @RequestParam("file") MultipartFile multipartFile){
+        return userDetailService.setScoreByUserId(score, multipartFile);
     }
 
 /*

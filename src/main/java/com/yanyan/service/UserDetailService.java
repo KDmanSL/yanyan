@@ -4,6 +4,7 @@ import com.yanyan.domain.UserDetail;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yanyan.dto.Result;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
 * @author 韶光善良君
@@ -16,6 +17,6 @@ public interface UserDetailService extends IService<UserDetail> {
 
     Result setSchoolMajorSessionByUserId(String schoolName, String majorName,Integer session);
 
-    Result setScoreByUserId(Double score);
+    Result setScoreByUserId(String score, MultipartFile multipartFile);
 
 }
