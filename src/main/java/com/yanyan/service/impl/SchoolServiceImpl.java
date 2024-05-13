@@ -11,6 +11,8 @@ import com.yanyan.utils.RedisConstants;
 import com.yanyan.utils.RedisData;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,8 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -36,7 +40,10 @@ public class SchoolServiceImpl extends ServiceImpl<SchoolMapper, School>
     private StringRedisTemplate stringRedisTemplate;
     @Resource
     private CacheClient cacheClient;
+    @Resource
+    private RedissonClient redissonClient;
 
+    private static final ExecutorService CACHE_REBUILD_EXECUTOR = Executors.newFixedThreadPool(10);
 
     @Override
     public Result queryAllSchoolList(Integer is211, Integer current, Integer size) {
@@ -78,26 +85,40 @@ public class SchoolServiceImpl extends ServiceImpl<SchoolMapper, School>
             return Result.fail("查询院校列表失败");
         }
 
-        // 将数据写入redis
-        List<String> strList = schoolsList.stream().map(JSONUtil::toJsonStr).collect(Collectors.toList());
-        stringRedisTemplate.opsForList().rightPushAll(RedisConstants.SCHOOL_ALL_LIST_KEY, strList);
-        stringRedisTemplate.expire(SCHOOL_ALL_LIST_KEY, SCHOOL_ALL_LIST_TTL, TimeUnit.MINUTES);
+        RLock lock = redissonClient.getLock(CACHE_SCHOOL_LOCK_KEY);
+        boolean isLock = lock.tryLock();
+        if (isLock) {
+            //6.3获取成功，开启独立线程，实现缓存重建
+            CACHE_REBUILD_EXECUTOR.submit(() -> {
+                try {
+                    // 将数据写入redis
+                    List<String> strList = schoolsList.stream().map(JSONUtil::toJsonStr).collect(Collectors.toList());
+                    stringRedisTemplate.opsForList().rightPushAll(RedisConstants.SCHOOL_ALL_LIST_KEY, strList);
+                    stringRedisTemplate.expire(SCHOOL_ALL_LIST_KEY, SCHOOL_ALL_LIST_TTL, TimeUnit.MINUTES);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    //释放锁
+                    lock.unlock();
+                }
+            });
+        }
+        List<School> nowPageList = schoolsList;
         // 检测是否有211筛选
         if (is211 != null && is211 == 1) {
-            schoolsList = schoolsList.stream()
+            nowPageList = nowPageList.stream()
                     .filter(school -> school.getIs211() == 1)
                     .collect(Collectors.toList());
         }
-        Long totalPage = (long) Math.ceil((double) schoolsList.size() / size);
+        Long totalPage = (long) Math.ceil((double) nowPageList.size() / size);
 
         start = Math.max(start, 0);
-        end = Math.min(end, schoolsList.size() - 1);
-        if (start >= schoolsList.size()) {
+        end = Math.min(end, nowPageList.size() - 1);
+        if (start >= nowPageList.size()) {
             return Result.fail("超出页面请求范围");
         }
         // 返回当前页数据
-        List<School> nowPageList = schoolsList.subList(start, end + 1);
-
+        nowPageList = nowPageList.subList(start, end + 1);
 
         return Result.ok(nowPageList, totalPage);
     }
@@ -181,10 +202,24 @@ public class SchoolServiceImpl extends ServiceImpl<SchoolMapper, School>
         if (schoolsList == null) {
             return Result.fail("查询院校列表失败");
         }
-        // 将数据写入redis
-        List<String> strList = schoolsList.stream().map(JSONUtil::toJsonStr).collect(Collectors.toList());
-        stringRedisTemplate.opsForList().rightPushAll(RedisConstants.SCHOOL_ALL_LIST_KEY, strList);
-        stringRedisTemplate.expire(SCHOOL_ALL_LIST_KEY, SCHOOL_ALL_LIST_TTL, TimeUnit.MINUTES);
+        RLock lock = redissonClient.getLock(CACHE_SCHOOL_LOCK_KEY);
+        boolean isLock = lock.tryLock();
+        if (isLock) {
+            //6.3获取成功，开启独立线程，实现缓存重建
+            CACHE_REBUILD_EXECUTOR.submit(() -> {
+                try {
+                    // 将数据写入redis
+                    List<String> strList = schoolsList.stream().map(JSONUtil::toJsonStr).collect(Collectors.toList());
+                    stringRedisTemplate.opsForList().rightPushAll(RedisConstants.SCHOOL_ALL_LIST_KEY, strList);
+                    stringRedisTemplate.expire(SCHOOL_ALL_LIST_KEY, SCHOOL_ALL_LIST_TTL, TimeUnit.MINUTES);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    //释放锁
+                    lock.unlock();
+                }
+            });
+        }
 
         // 返回当前页数据
         List<School> nowPageList = schoolsList.stream()
@@ -228,10 +263,24 @@ public class SchoolServiceImpl extends ServiceImpl<SchoolMapper, School>
         //3.缓存为空，查询数据库
         List<School> schoolsList = query().orderByAsc("ranking").list();
 
-        // 将数据写入redis
-        List<String> strList = schoolsList.stream().map(JSONUtil::toJsonStr).collect(Collectors.toList());
-        stringRedisTemplate.opsForList().rightPushAll(RedisConstants.SCHOOL_ALL_LIST_KEY, strList);
-        stringRedisTemplate.expire(SCHOOL_ALL_LIST_KEY, SCHOOL_ALL_LIST_TTL, TimeUnit.MINUTES);
+        RLock lock = redissonClient.getLock(CACHE_SCHOOL_LOCK_KEY);
+        boolean isLock = lock.tryLock();
+        if (isLock) {
+            //6.3获取成功，开启独立线程，实现缓存重建
+            CACHE_REBUILD_EXECUTOR.submit(() -> {
+                try {
+                    // 将数据写入redis
+                    List<String> strList = schoolsList.stream().map(JSONUtil::toJsonStr).collect(Collectors.toList());
+                    stringRedisTemplate.opsForList().rightPushAll(RedisConstants.SCHOOL_ALL_LIST_KEY, strList);
+                    stringRedisTemplate.expire(SCHOOL_ALL_LIST_KEY, SCHOOL_ALL_LIST_TTL, TimeUnit.MINUTES);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    //释放锁
+                    lock.unlock();
+                }
+            });
+        }
 
         // 返回当前页数据
         List<School> schools = schoolsList.stream()
@@ -272,19 +321,33 @@ public class SchoolServiceImpl extends ServiceImpl<SchoolMapper, School>
 
             return Result.ok(nowPageList, totalPage);
         }
+
         //3.缓存为空，查询数据库
         List<School> schoolsList = query().orderByAsc("ranking").list();
 
-        // 将数据写入redis
-        List<String> strList = schoolsList.stream().map(JSONUtil::toJsonStr).collect(Collectors.toList());
-        stringRedisTemplate.opsForList().rightPushAll(RedisConstants.SCHOOL_ALL_LIST_KEY, strList);
-        stringRedisTemplate.expire(SCHOOL_ALL_LIST_KEY, SCHOOL_ALL_LIST_TTL, TimeUnit.MINUTES);
-
+        RLock lock = redissonClient.getLock(CACHE_SCHOOL_LOCK_KEY);
+        boolean isLock = lock.tryLock();
+        if (isLock) {
+            //6.3获取成功，开启独立线程，实现缓存重建
+            CACHE_REBUILD_EXECUTOR.submit(() -> {
+                try {
+                    // 将数据写入redis
+                    List<String> strList = schoolsList.stream().map(JSONUtil::toJsonStr).collect(Collectors.toList());
+                    stringRedisTemplate.opsForList().rightPushAll(RedisConstants.SCHOOL_ALL_LIST_KEY, strList);
+                    stringRedisTemplate.expire(SCHOOL_ALL_LIST_KEY, SCHOOL_ALL_LIST_TTL, TimeUnit.MINUTES);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    //释放锁
+                    lock.unlock();
+                }
+            });
+        }
         // 返回当前页数据
         List<School> schools = schoolsList.stream()
-                .filter(school -> school.getName().equals(name))
+                .filter(school -> school.getName().toLowerCase().contains(name.toLowerCase()))
                 .collect(Collectors.toList());
-        if (schoolsList.isEmpty()) {
+        if (schools.isEmpty()) {
             return Result.fail("未找到学校信息");
         }
         Long totalPage = (long) Math.ceil((double) schools.size() / size);
@@ -296,7 +359,6 @@ public class SchoolServiceImpl extends ServiceImpl<SchoolMapper, School>
         }
         // 返回当前页数据
         List<School> nowPageList = schools.subList(start, end + 1);
-
 
         return Result.ok(nowPageList, totalPage);
     }

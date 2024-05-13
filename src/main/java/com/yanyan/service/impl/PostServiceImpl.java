@@ -103,7 +103,6 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
 //        return Result.ok(nowPageList, totalPage);
     }
 
-    private static final ExecutorService CACHE_REBUILD_EXECUTOR = Executors.newFixedThreadPool(10);
 
     @Override
     public void savePost2Redis(Long expireSeconds) {
