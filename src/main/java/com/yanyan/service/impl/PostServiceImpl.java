@@ -99,6 +99,12 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
 
     @Override
     public void savePost2Redis(Long expireSeconds) {
+        // 检查数据库缓存是否存在，存在则删除缓存
+        List<String> listCache = stringRedisTemplate.opsForList().range(POST_ALL_LIST_KEY, 0, -1);
+        if (listCache != null && !listCache.isEmpty()) {
+            stringRedisTemplate.delete(POST_ALL_LIST_KEY);
+        }
+
         List<PostDTO> postList = postMapper.selectPostWithUserInfo();
         for (PostDTO postDTO : postList) {
             Long postId = postDTO.getId();
