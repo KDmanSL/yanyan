@@ -102,37 +102,36 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
 //
 //        return Result.ok(nowPageList, totalPage);
     }
+
     private static final ExecutorService CACHE_REBUILD_EXECUTOR = Executors.newFixedThreadPool(10);
+
     @Override
     public void savePost2Redis(Long expireSeconds) {
         // 添加分布式锁
         RLock lock = redissonClient.getLock(CACHE_POST_LOCK_KEY);
         boolean isLock = lock.tryLock();
         if (isLock) {
-            //6.3获取成功，开启独立线程，实现缓存重建
-            CACHE_REBUILD_EXECUTOR.submit(() -> {
-                try {
-                    List<PostDTO> postList = postMapper.selectPostWithUserInfo();
-                    for (PostDTO postDTO : postList) {
-                        Long postId = postDTO.getId();
-                        List<PostReplyDTO> postReplyList = postReplyMapper.selectPostReplyWithUserInfo(postId);
-                        postDTO.setPostReplyList(postReplyList);
-                    }
-                    // 检查数据库缓存是否存在，存在则删除缓存
-                    if (stringRedisTemplate.hasKey(POST_ALL_LIST_KEY)) {
-                        stringRedisTemplate.delete(POST_ALL_LIST_KEY);
-                    }
-                    // 将数据写入redis
-                    List<String> strList = postList.stream().map(JSONUtil::toJsonStr).collect(Collectors.toList());
-                    stringRedisTemplate.opsForList().rightPushAll(RedisConstants.POST_ALL_LIST_KEY, strList);
-                    stringRedisTemplate.expire(POST_ALL_LIST_KEY, expireSeconds, TimeUnit.MINUTES);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                } finally {
-                    //释放锁
-                    lock.unlock();
+            try {
+                List<PostDTO> postList = postMapper.selectPostWithUserInfo();
+                for (PostDTO postDTO : postList) {
+                    Long postId = postDTO.getId();
+                    List<PostReplyDTO> postReplyList = postReplyMapper.selectPostReplyWithUserInfo(postId);
+                    postDTO.setPostReplyList(postReplyList);
                 }
-            });
+                // 检查数据库缓存是否存在，存在则删除缓存
+                if (stringRedisTemplate.hasKey(POST_ALL_LIST_KEY)) {
+                    stringRedisTemplate.delete(POST_ALL_LIST_KEY);
+                }
+                // 将数据写入redis
+                List<String> strList = postList.stream().map(JSONUtil::toJsonStr).collect(Collectors.toList());
+                stringRedisTemplate.opsForList().rightPushAll(RedisConstants.POST_ALL_LIST_KEY, strList);
+                stringRedisTemplate.expire(POST_ALL_LIST_KEY, expireSeconds, TimeUnit.MINUTES);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            } finally {
+                //释放锁
+                lock.unlock();
+            }
         }
     }
 
