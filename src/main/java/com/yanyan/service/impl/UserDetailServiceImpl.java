@@ -98,7 +98,6 @@ public class UserDetailServiceImpl extends ServiceImpl<UserDetailMapper, UserDet
 
     @Override
     public Result setScoreByUserId(String score, MultipartFile multipartFile) {
-        // TODO 设置用户分数
         // 先校验用户是否已经设置要考研的学校
         Long userId = UserHolder.getUser().getId();
         UserDetail userDetail = query().eq("userId", userId).one();

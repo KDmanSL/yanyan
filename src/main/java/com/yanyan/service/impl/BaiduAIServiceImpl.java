@@ -3,7 +3,6 @@ package com.yanyan.service.impl;
 import cn.hutool.core.lang.UUID;
 
 import com.baidu.aip.ocr.AipOcr;
-import com.yanyan.dto.Result;
 import com.yanyan.service.BaiduAIService;
 import com.yanyan.utils.SystemConstants;
 import com.yanyan.utils.UserHolder;
@@ -41,11 +40,15 @@ public class BaiduAIServiceImpl implements BaiduAIService {
     private ConcurrentHashMap<String, CompletableFuture<String>> futures = new ConcurrentHashMap<>();
 
     private static final DefaultRedisScript<Long> SECKILL_SCRIPT;
+    private static final DefaultRedisScript<Long> CREATE_GROUP_SCRIPT;
 
     static {
         SECKILL_SCRIPT = new DefaultRedisScript<>();
         SECKILL_SCRIPT.setLocation(new ClassPathResource("mqadd.lua"));
         SECKILL_SCRIPT.setResultType(Long.class);
+        CREATE_GROUP_SCRIPT = new DefaultRedisScript<>();
+        CREATE_GROUP_SCRIPT.setLocation(new ClassPathResource("createMQGroup.lua"));
+        CREATE_GROUP_SCRIPT.setResultType(Long.class);
     }
 
     @Override
@@ -97,6 +100,10 @@ public class BaiduAIServiceImpl implements BaiduAIService {
         } finally {
             futures.remove(uuid); // 清理
         }
+    }
+    @Override
+    public void createGroupMQList(){
+        stringRedisTemplate.execute(CREATE_GROUP_SCRIPT, Collections.emptyList());
     }
 
     private String imgHandlerAI(String imgurl) {

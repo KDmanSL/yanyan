@@ -1,5 +1,6 @@
 package com.yanyan.utils;
 
+import com.yanyan.service.BaiduAIService;
 import com.yanyan.service.CourseService;
 import com.yanyan.service.MajorService;
 import com.yanyan.service.SchoolService;
@@ -20,6 +21,8 @@ public class RedisCachePreloader {
     private MajorService majorService;
     @Autowired
     private SchoolService schoolService;
+    @Autowired
+    private BaiduAIService baiduAIService;
     @PostConstruct
     public void preloadCache(){
         try {
@@ -27,6 +30,11 @@ public class RedisCachePreloader {
             majorService.saveMajor2Redis(CACHE_MAJOR_TTL);
         }catch (Exception e){
             log.error("缓存预热失败:",e);
+        }
+        try{
+            baiduAIService.createGroupMQList();
+        }catch (Exception e){
+            log.error("缓存流已存在:",e);
         }
     }
 }
