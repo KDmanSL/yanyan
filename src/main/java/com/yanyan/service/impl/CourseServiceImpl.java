@@ -117,8 +117,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course>
         // 然后我封装了一个自定义sql同时存对应的课程分类成的major信息，
         // 之后查对应的course也是从对应的list中查找
         // 检查数据库缓存是否存在，存在则删除缓存
-        List<String> listCache = stringRedisTemplate.opsForList().range(COURSE_ALL_LIST_KEY, 0, -1);
-        if (listCache != null && !listCache.isEmpty()) {
+        if (stringRedisTemplate.hasKey(COURSE_ALL_LIST_KEY)) {
             stringRedisTemplate.delete(COURSE_ALL_LIST_KEY);
         }
 

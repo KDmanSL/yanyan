@@ -20,7 +20,7 @@ public class RedisConstants {
     public static final Long Post_ALL_LIST_TTL = 30L;
     public static final Long POST_ALL_LIST_TTL = 30L;
     public static final Long CACHE_NULL_TTL = 2L;
-    public static final String SECKILL_STOCK_KEY = "seckill:stock:";
+    public static final String CACHE_POST_LOCK_KEY = "cache:lock:post";
     public static final String BLOG_LIKED_KEY = "blog:liked:";
     public static final String FEED_KEY = "feed:";
     public static final String USER_SIGN_KEY = "sign:";
