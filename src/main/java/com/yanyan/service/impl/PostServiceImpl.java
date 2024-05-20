@@ -145,6 +145,9 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
                     .filter(postDTO -> postDTO.getUserid().equals(userId))
                     .sorted(Comparator.comparing(PostDTO::getPostdate).reversed())
                     .collect(Collectors.toList());
+            if(postsList.isEmpty()){
+                return Result.fail("该用户没有帖子");
+            }
             Long totalPage = (long) Math.ceil((double) postsList.size() / DEFAULT_PAGE_SIZE);
             // 检查分页索引，防止越界
             int listSize = postsList.size();
@@ -177,8 +180,12 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
         if (RegexUtils.isPostContentInvalid(content)) {
             return Result.fail("帖子内容不符合格式要求");
         }
-
-        Long userId = UserHolder.getUser().getId();
+        Long userId;
+        try {
+            userId = UserHolder.getUser().getId();
+        } catch (Exception e) {
+            return Result.fail("用户未登录");
+        }
         Post post = new Post();
         post.setUserid(userId);
         post.setTitle(title);
@@ -193,7 +200,12 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
     @Override
     public Result deletePost(Long postId) {
         // 核验身份 帖子主人或者系统管理员允许删除帖子
-        UserDTO user = UserHolder.getUser();
+        UserDTO user;
+        try {
+            user = UserHolder.getUser();
+        }catch (Exception e){
+            return Result.fail("用户未登录");
+        }
         Long userId = user.getId();
         Post post = getById(postId);
         if (post == null) {

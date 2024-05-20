@@ -18,7 +18,6 @@ public class RedisConstants {
     public static final Long CACHE_MAJOR_TTL = 30L;
     public static final String POST_ALL_LIST_KEY = "post:all:list";
     public static final Long Post_ALL_LIST_TTL = 30L;
-    public static final Long POST_ALL_LIST_TTL = 30L;
     public static final Long CACHE_NULL_TTL = 2L;
     public static final String CACHE_POST_LOCK_KEY = "cache:lock:post";
     public static final String CACHE_SCHOOL_LOCK_KEY = "cache:lock:school";

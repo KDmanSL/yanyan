@@ -6,6 +6,7 @@ import com.yanyan.domain.PostReply;
 import com.yanyan.dto.AddPostReplyDTO;
 import com.yanyan.dto.PostReplyDTO;
 import com.yanyan.dto.Result;
+import com.yanyan.dto.UserDTO;
 import com.yanyan.service.PostReplyService;
 import com.yanyan.mapper.PostReplyMapper;
 import com.yanyan.service.PostService;
@@ -60,16 +61,18 @@ public class PostReplyServiceImpl extends ServiceImpl<PostReplyMapper, PostReply
     }
 
     @Override
-    public Result addPostReply(AddPostReplyDTO addPostReplyDTO){
+    public Result addPostReply(AddPostReplyDTO addPostReplyDTO) {
         String content = addPostReplyDTO.getContent();
         // 验证帖子回复内容
         if (RegexUtils.isPostContentInvalid(content)) {
             return Result.fail("帖子内容不符合格式要求");
         }
-
-
-        Long userId = UserHolder.getUser().getId();
-
+        Long userId;
+        try {
+            userId = UserHolder.getUser().getId();
+        } catch (Exception e) {
+            return Result.fail("用户未登录");
+        }
         PostReply postReply = new PostReply();
         postReply.setPostid(addPostReplyDTO.getPostid());
         postReply.setContent(content);
@@ -78,7 +81,7 @@ public class PostReplyServiceImpl extends ServiceImpl<PostReplyMapper, PostReply
         // 帖子缓存重建
         try {
             postService.savePost2Redis(Post_ALL_LIST_TTL);
-        }catch (Exception e){
+        } catch (Exception e) {
             log.error("缓存重建失败：" + e.getMessage());
         }
         return Result.ok("回复发表成功");
@@ -87,7 +90,13 @@ public class PostReplyServiceImpl extends ServiceImpl<PostReplyMapper, PostReply
     @Override
     public Result deletePostReply(Long postReplyId){
         // 核验身份 帖子主人或者系统管理员允许删除帖子
-        Long userId = UserHolder.getUser().getId(); // 当前用户id
+        UserDTO user;
+        try {
+            user = UserHolder.getUser();
+        }catch (Exception e){
+            return Result.fail("用户未登录");
+        }
+        Long userId = user.getId(); // 当前用户id
         PostReply postReply = getById(postReplyId);
         if (postReply == null) {
             return Result.fail("回复不存在");
@@ -96,7 +105,7 @@ public class PostReplyServiceImpl extends ServiceImpl<PostReplyMapper, PostReply
         Long postId = postReply.getPostid();
         Post post = postService.getById(postId);
         Long userId3 = post.getUserid(); // 帖子用户id
-        String role = userService.getById(userId).getRole();
+        String role = user.getRole();
         if (role.equals("adm") || userId.equals(userId2) || userId.equals(userId3)) {
             removeById(postReplyId);
             // 缓存重建
