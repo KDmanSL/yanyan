@@ -171,4 +171,15 @@ public class UserController {
     public Result getUserRank(){
         return userDetailService.getUserRank();
     }
+
+    /**
+     * 获取页面uv
+     *
+     * @param date 日期 格式为 yyyy-MM-dd
+     * @return uv
+     */
+    @GetMapping("/uv")
+    public Result getUV(@RequestParam("date") String date){
+        return userService.getUV(date);
+    }
 }

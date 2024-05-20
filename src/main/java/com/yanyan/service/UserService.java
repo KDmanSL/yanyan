@@ -27,4 +27,6 @@ public interface UserService extends IService<User> {
 
     //修改用户头像
     Result updateUserImg(String img_url);
+
+    Result getUV(String date);
 }

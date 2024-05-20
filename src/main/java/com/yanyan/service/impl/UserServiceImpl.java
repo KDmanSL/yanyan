@@ -242,6 +242,32 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         return Result.ok("修改成功");
     }
 
+    @Override
+    public Result getUV(String date) {
+        UserDTO user;
+        String role;
+        try {
+            user = UserHolder.getUser();
+            role = user.getRole();
+        }catch (Exception e){
+            return Result.fail("请先登录");
+        }
+
+        if (!Objects.equals(role, "adm")) {
+            return Result.fail("权限不足");
+        }
+
+        //date格式 2024-05-20
+        String redisKey = USER_UV_KEY + date;
+
+        // 获取当前日期的UV
+        Long uvCount = stringRedisTemplate.opsForHyperLogLog().size(redisKey);
+
+        // 返回结果
+        return Result.ok(uvCount);
+    }
+
+
 }
 
 
