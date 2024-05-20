@@ -162,4 +162,13 @@ public class UserController {
         List<String> picList=PicBedConstants.HEAD_PIC_LIST;
         return Result.ok(picList);
     }
+
+    /**
+     * 获取用户排名
+     * @return 用户排名
+     */
+    @GetMapping("/rank")
+    public Result getUserRank(){
+        return userDetailService.getUserRank();
+    }
 }

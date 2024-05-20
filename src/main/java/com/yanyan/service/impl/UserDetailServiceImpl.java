@@ -3,11 +3,8 @@ package com.yanyan.service.impl;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.baomidou.mybatisplus.extension.conditions.update.UpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yanyan.domain.Major;
-import com.yanyan.domain.School;
 import com.yanyan.domain.UserDetail;
 import com.yanyan.dto.Result;
 import com.yanyan.dto.UserDetailDTO;
@@ -19,9 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -101,7 +96,7 @@ public class UserDetailServiceImpl extends ServiceImpl<UserDetailMapper, UserDet
         // 先校验用户是否已经设置要考研的学校
         Long userId = UserHolder.getUser().getId();
         UserDetail userDetail = query().eq("userId", userId).one();
-        if (userDetail.getSchoolid()==null) {
+        if (userDetail.getSchoolid() == null) {
             return Result.fail("请先设置考研学校专业");
         }
         // 用户已经设置学校 获取学校名称 用于检测
@@ -125,7 +120,7 @@ public class UserDetailServiceImpl extends ServiceImpl<UserDetailMapper, UserDet
             if (words.contains(score)) {
                 foundScore = true;  // 标记已找到该分数
             }
-            if (words.contains(schoolName)){
+            if (words.contains(schoolName)) {
                 foundSchool = true;
             }
         }
@@ -142,8 +137,39 @@ public class UserDetailServiceImpl extends ServiceImpl<UserDetailMapper, UserDet
 
         return Result.ok("添加成绩成功");
     }
-}
 
+    @Override
+    public Result getUserRank() {
+        Long userId;
+        try {
+            userId= UserHolder.getUser().getId();
+        }catch (Exception e){
+            return Result.fail("请先登录");
+        }
+        UserDetail userDetail = query().eq("userId", userId).one();
+        if(userDetail.getSchoolid()==null||userDetail.getMajorid()==null||userDetail.getSession()==null){
+            return Result.fail("请先设置学校专业和届别");
+        }
+        if (userDetail.getScore() == null) {
+            return Result.fail("请先设置分数");
+        }
+        Integer session = userDetail.getSession();
+        Double score = userDetail.getScore();
+        // 查询同一届用户的分数并按分数降序排列
+        List<UserDetail> userList = query().eq("session", session).orderByDesc("score").list();
+
+        // 计算排名
+        int rank = 1;
+        for (UserDetail user : userList) {
+            if (user.getScore() > score) {
+                rank++;
+            } else {
+                break;
+            }
+        }
+        return Result.ok(rank);
+    }
+}
 
 
 

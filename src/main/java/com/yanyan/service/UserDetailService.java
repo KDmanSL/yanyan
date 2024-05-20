@@ -19,4 +19,5 @@ public interface UserDetailService extends IService<UserDetail> {
 
     Result setScoreByUserId(String score, MultipartFile multipartFile);
 
+    Result getUserRank();
 }
