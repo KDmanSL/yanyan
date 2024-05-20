@@ -3,10 +3,7 @@ package com.yanyan.service.impl;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yanyan.domain.Post;
-import com.yanyan.dto.AddPostDTO;
-import com.yanyan.dto.PostDTO;
-import com.yanyan.dto.PostReplyDTO;
-import com.yanyan.dto.Result;
+import com.yanyan.dto.*;
 import com.yanyan.mapper.PostReplyMapper;
 import com.yanyan.service.PostReplyService;
 import com.yanyan.service.PostService;
@@ -196,13 +193,14 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
     @Override
     public Result deletePost(Long postId) {
         // 核验身份 帖子主人或者系统管理员允许删除帖子
-        Long userId = UserHolder.getUser().getId();
+        UserDTO user = UserHolder.getUser();
+        Long userId = user.getId();
         Post post = getById(postId);
         if (post == null) {
             return Result.fail("帖子不存在");
         }
         Long userId2 = post.getUserid();
-        String role = userService.getById(userId).getRole();
+        String role = user.getRole();
         if (role.equals("adm") || userId.equals(userId2)) {
             removeById(postId);
             // 缓存重建

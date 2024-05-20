@@ -2,6 +2,7 @@ package com.yanyan.service;
 
 import com.yanyan.domain.Course;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.yanyan.dto.MajorCourseDTO;
 import com.yanyan.dto.Result;
 
 /**
@@ -28,4 +29,8 @@ public interface CourseService extends IService<Course> {
     Result queryCoursesListByMajorId(Long majorId);
 
     Result queryCourseListByName(String name, Integer current, Integer size);
+
+    Result deleteCourse(Long courseId);
+
+    Result addCourse(MajorCourseDTO courseDTO);
 }

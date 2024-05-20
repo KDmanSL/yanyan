@@ -22,6 +22,7 @@ public class RedisConstants {
     public static final Long CACHE_NULL_TTL = 2L;
     public static final String CACHE_POST_LOCK_KEY = "cache:lock:post";
     public static final String CACHE_SCHOOL_LOCK_KEY = "cache:lock:school";
+    public static final String CACHE_COURSE_LOCK_KEY = "cache:lock:course";
     public static final String BLOG_LIKED_KEY = "blog:liked:";
     public static final String FEED_KEY = "feed:";
     public static final String USER_SIGN_KEY = "sign:";

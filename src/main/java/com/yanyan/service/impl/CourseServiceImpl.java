@@ -1,19 +1,25 @@
 package com.yanyan.service.impl;
 
+import cn.hutool.core.lang.Snowflake;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yanyan.domain.Course;
-import com.yanyan.domain.School;
+import com.yanyan.domain.MajorCourse;
 import com.yanyan.dto.CourseDetailDTO;
 import com.yanyan.dto.MajorCourseDTO;
 import com.yanyan.dto.Result;
 import com.yanyan.mapper.MajorCourseMapper;
 import com.yanyan.service.CourseService;
 import com.yanyan.mapper.CourseMapper;
+import com.yanyan.service.MajorService;
 import com.yanyan.service.UserFavoritesService;
+import com.yanyan.utils.UserHolder;
 import jakarta.annotation.Resource;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+
 import static com.yanyan.utils.RedisConstants.*;
 
 import java.util.Comparator;
@@ -23,13 +29,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
-* @author 韶光善良君
-* @description 针对表【yy_course(课程表)】的数据库操作Service实现
-* @createDate 2024-04-05 17:15:26
-*/
+ * @author 韶光善良君
+ * @description 针对表【yy_course(课程表)】的数据库操作Service实现
+ * @createDate 2024-04-05 17:15:26
+ */
 @Service
 public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course>
-    implements CourseService{
+        implements CourseService {
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
@@ -52,7 +58,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course>
                     .collect(Collectors.toList());
             CourseDetailDTO courseDetailDTO = new CourseDetailDTO();
             if (coursesList.isEmpty()) {
-                return Result.fail("未找到id为"+id+"的内容");
+                return Result.fail("未找到id为" + id + "的内容");
             }
             courseDetailDTO.setMajorCourseDTO(coursesList.get(0));
             // 检查是否收藏
@@ -65,7 +71,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course>
 
         return queryCourseById(id);
     }
-    
+
 
     @Override
     public Result queryAllCoursesList(Integer current, Integer size) {
@@ -102,7 +108,8 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course>
         saveCourses2Redis(COURSE_ALL_LIST_TTL);
         return queryAllCoursesList(current, size);
     }
-
+    @Resource
+    private RedissonClient redissonClient;
 
     /**
      * 缓存预热
@@ -111,21 +118,34 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course>
      * @throws InterruptedException 线程中断异常
      */
     @Override
-    public void saveCourses2Redis(Long expireSeconds){
+    public void saveCourses2Redis(Long expireSeconds) {
 
         // 这个地方改成存list而不是哈希，
         // 然后我封装了一个自定义sql同时存对应的课程分类成的major信息，
         // 之后查对应的course也是从对应的list中查找
         // 检查数据库缓存是否存在，存在则删除缓存
-        if (stringRedisTemplate.hasKey(COURSE_ALL_LIST_KEY)) {
-            stringRedisTemplate.delete(COURSE_ALL_LIST_KEY);
+
+        // 添加分布式锁
+        RLock lock = redissonClient.getLock(CACHE_COURSE_LOCK_KEY);
+        boolean isLock = lock.tryLock();
+        if (isLock) {
+            try {
+                if (stringRedisTemplate.hasKey(COURSE_ALL_LIST_KEY)) {
+                    stringRedisTemplate.delete(COURSE_ALL_LIST_KEY);
+                }
+
+                List<MajorCourseDTO> courseList = majorCourseMapper.selectCourseMajorWithDetails();
+
+                List<String> strList = courseList.stream().map(JSONUtil::toJsonStr).collect(Collectors.toList());
+                stringRedisTemplate.opsForList().rightPushAll(COURSE_ALL_LIST_KEY, strList);
+                stringRedisTemplate.expire(COURSE_ALL_LIST_KEY, expireSeconds, TimeUnit.MINUTES);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            } finally {
+                //释放锁
+                lock.unlock();
+            }
         }
-
-        List<MajorCourseDTO> courseList = majorCourseMapper.selectCourseMajorWithDetails();
-
-        List<String> strList = courseList.stream().map(JSONUtil::toJsonStr).collect(Collectors.toList());
-        stringRedisTemplate.opsForList().rightPushAll(COURSE_ALL_LIST_KEY, strList);
-        stringRedisTemplate.expire(COURSE_ALL_LIST_KEY, expireSeconds, TimeUnit.MINUTES);
     }
 
     // 带分页的查询（课程页面分类查询使用）
@@ -216,7 +236,69 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course>
         saveCourses2Redis(COURSE_ALL_LIST_TTL);
         return queryCourseListByName(name, current, size);
     }
+
+    @Override
+    public Result deleteCourse(Long courseId) {
+        // 检查权限
+        String userRole = UserHolder.getUser().getRole();
+        if(userRole.equals("stu")){
+            return Result.fail("无权限删除课程");
+        }
+
+        Course course = this.getById(courseId);
+        if (course == null) {
+            return Result.fail("课程不存在");
+        }
+
+        removeById(courseId);
+        saveCourses2Redis(COURSE_ALL_LIST_TTL);
+        return Result.ok("课程删除成功");
     }
+    @Resource
+    private MajorService majorService;
+    @Resource
+    private Snowflake snowflake;
+
+    @Override
+    public Result addCourse(MajorCourseDTO courseDTO) {
+        // 检查权限
+        String userRole = UserHolder.getUser().getRole();
+        if(userRole.equals("stu")){
+            return Result.fail("无权限删除课程");
+        }
+
+        if (courseDTO == null) {
+            return Result.fail("课程信息不能为空");
+        }
+        if (courseDTO.getCourseName() == null || courseDTO.getCourseDescription() == null || courseDTO.getCourseUrl() == null || courseDTO.getCourseImgUrl() == null) {
+            return Result.fail("课程信息不能为空");
+        }
+        if (courseDTO.getMajorId() == null || courseDTO.getMajorName() == null) {
+            return Result.fail("课程相关专业不能为空");
+        }
+        if(majorService.queryMajorById(courseDTO.getMajorId())==null){
+            return Result.fail("专业不存在");
+        }
+        Long courseId =snowflake.nextId();
+        Course course = new Course();
+        course.setId(courseId);
+        course.setName(courseDTO.getCourseName());
+        course.setDescription(courseDTO.getCourseDescription());
+        course.setUrl(courseDTO.getCourseUrl());
+        course.setImgUrl(courseDTO.getCourseImgUrl());
+        this.save(course);
+
+        MajorCourse majorCourse = new MajorCourse();
+        majorCourse.setMajorid(courseDTO.getMajorId());
+        majorCourse.setCourseid(courseId);
+        majorCourseMapper.insert(majorCourse);
+
+        saveCourses2Redis(COURSE_ALL_LIST_TTL);
+
+        return Result.ok("课程添加成功");
+
+    }
+}
 
 
 

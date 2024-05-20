@@ -1,9 +1,10 @@
 package com.yanyan.controller;
 
+import com.yanyan.dto.MajorCourseDTO;
 import com.yanyan.dto.Result;
 import com.yanyan.service.CourseService;
-import com.yanyan.service.MajorCourseService;
 import com.yanyan.service.UserFavoritesService;
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -87,5 +88,24 @@ public class CourseController {
                                         @RequestParam(value = "current", defaultValue = "1") Integer current,
                                         @RequestParam(value = "size", defaultValue = "10") Integer size){
         return courseService.queryCourseListByName(name, current, size);
+    }
+
+    /**
+     * 删除课程
+     * @param courseId 课程id
+     * @return 执行结果
+     */
+    @PostMapping(value = "/delete")
+    public Result deleteCourse(@RequestParam("courseId") Long courseId){
+        return courseService.deleteCourse(courseId);
+    }
+    /**
+     * 添加课程
+     * @param courseDTO 课程信息（包含专业信息）
+     * @return 执行结果
+     */
+    @PostMapping(value = "/add")
+    public Result addCourse(@RequestBody MajorCourseDTO courseDTO){
+        return courseService.addCourse(courseDTO);
     }
 }
