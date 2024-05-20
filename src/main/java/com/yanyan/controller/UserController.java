@@ -99,7 +99,7 @@ public class UserController {
     @PostMapping("/score")
     public Result setUserScore(
             @RequestParam("score") String score,
-            @RequestParam("file") MultipartFile multipartFile){
+            @RequestPart("file") MultipartFile multipartFile){
         return userDetailService.setScoreByUserId(score, multipartFile);
     }
 
