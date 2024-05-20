@@ -5,9 +5,7 @@ import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.RandomUtil;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.yanyan.domain.School;
 import com.yanyan.domain.User;
 import com.yanyan.dto.LoginFormDTO;
 import com.yanyan.dto.RegisterFormDTO;
@@ -24,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -227,6 +224,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         removeById(userId);
 
         return Result.ok("删除用户成功");
+    }
+
+    //修改用户头像
+    @Override
+    public Result updateUserImg(String img_url) {
+        UserDTO user;
+        try {
+            user = UserHolder.getUser();
+        }catch (Exception e){
+            return Result.fail("请先登录");
+        }
+        User user1 = new User();
+        user1.setId(user.getId());
+        user1.setImgUrl(img_url);
+        updateById(user1);
+        return Result.ok("修改成功");
     }
 
 }

@@ -8,11 +8,14 @@ import com.yanyan.service.BaiduAIService;
 import com.yanyan.service.UserDetailService;
 import com.yanyan.service.UserFavoritesService;
 import com.yanyan.service.UserService;
+import com.yanyan.utils.PicBedConstants;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -138,5 +141,25 @@ public class UserController {
     @PostMapping("/delete")
     public Result deleteUser(@RequestParam("userId") Long userId){
         return userService.deleteUser(userId);
+    }
+
+    /**
+     * 修改用户头像
+     *
+     * @param imgUrl 图片文件
+     * @return 结果信息
+     */
+    @PostMapping("/img/set")
+    public Result setUserImg(@RequestParam("imgUrl") String imgUrl){
+        return userService.updateUserImg(imgUrl);
+    }
+
+    /**
+     * 获取可用的头像列表
+     */
+    @GetMapping("/img/list")
+    public Result getUserImgList(){
+        List<String> picList=PicBedConstants.HEAD_PIC_LIST;
+        return Result.ok(picList);
     }
 }

@@ -24,4 +24,7 @@ public interface UserService extends IService<User> {
     Result setUserPermission(Long userId, String role);
 
     Result deleteUser(Long userId);
+
+    //修改用户头像
+    Result updateUserImg(String img_url);
 }
