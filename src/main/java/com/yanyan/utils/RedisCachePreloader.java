@@ -1,7 +1,6 @@
 package com.yanyan.utils;
 
 import com.yanyan.service.BaiduAIService;
-import com.yanyan.service.CourseService;
 import com.yanyan.service.MajorService;
 import com.yanyan.service.SchoolService;
 import jakarta.annotation.PostConstruct;
