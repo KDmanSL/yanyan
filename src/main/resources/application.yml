@@ -17,7 +17,7 @@ Spring:
           max-idle: 20
           min-idle: 1
           time-between-eviction-runs: 10s
-      database: 0
+      database: 4
   jackson:
     default-property-inclusion: non_null # JSON处理时忽略非空字段
   ai:

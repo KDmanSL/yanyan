@@ -97,4 +97,12 @@ public class PostController {
     public Result deletePostReply(@RequestParam("postReplyId") Long postReplyId) {
         return postReplyService.deletePostReply(postReplyId);
     }
+    /**
+     * 点赞
+     * @param postId 帖子id
+     */
+    @PostMapping("/like")
+    public Result like(@RequestParam("postId") Long postId) {
+        return postService.addLike(postId);
+    }
 }

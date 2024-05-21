@@ -21,4 +21,6 @@ public interface PostService extends IService<Post> {
     Result addPost(AddPostDTO postDTO);
 
     Result deletePost(Long postId);
+
+    Result addLike(Long postId);
 }

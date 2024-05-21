@@ -223,6 +223,18 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
         }
         return Result.fail("你无法删除该帖子");
     }
+
+    @Override
+    public Result addLike(Long postId) {
+        Long userId;
+        try {
+            userId = UserHolder.getUser().getId();
+        }catch (Exception e){
+            return Result.fail("用户未登录");
+        }
+        update().setSql("`like` = `like` + 1").eq("id", postId).update();
+        return Result.ok("点赞成功");
+    }
 }
 
 
