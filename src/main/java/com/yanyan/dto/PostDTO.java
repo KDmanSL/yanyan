@@ -14,5 +14,6 @@ public class PostDTO {
     private String title;
     private String content;
     private Date postdate;
+    private Long like;
     private List<PostReplyDTO> postReplyList;
 }
