@@ -105,4 +105,13 @@ public class PostController {
     public Result like(@RequestParam("postId") Long postId) {
         return postService.addLike(postId);
     }
+
+    /**
+     * 热榜
+     * @return 热榜
+     */
+    @GetMapping("/hot")
+    public Result hot(@RequestParam(value = "current", defaultValue = "1") Integer current) {
+        return postService.queryHotPostList(current);
+    }
 }

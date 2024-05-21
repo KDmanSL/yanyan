@@ -48,11 +48,6 @@ public class Post implements Serializable {
      * 点赞
      */
     private Long like;
-    /**
-     * 是否点赞过了
-     */
-    @TableField(exist = false)
-    private Boolean isLike;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

@@ -15,5 +15,6 @@ public class PostDTO {
     private String content;
     private Date postdate;
     private Long like;
+    private Boolean isLike; // 是否已经点赞
     private List<PostReplyDTO> postReplyList;
 }

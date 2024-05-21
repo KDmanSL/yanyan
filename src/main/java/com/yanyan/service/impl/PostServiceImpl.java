@@ -1,8 +1,10 @@
 package com.yanyan.service.impl;
 
+import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yanyan.domain.Post;
+import com.yanyan.domain.School;
 import com.yanyan.dto.*;
 import com.yanyan.mapper.PostReplyMapper;
 import com.yanyan.service.PostReplyService;
@@ -60,6 +62,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
                     .map(str -> (PostDTO) JSONUtil.toBean(str, PostDTO.class, true))
                     .sorted(Comparator.comparing(PostDTO::getPostdate).reversed())
                     .collect(Collectors.toList());
+
             Long totalPage = (long) Math.ceil((double) postsList.size() / DEFAULT_PAGE_SIZE);
             // 检查分页索引，防止越界
             int listSize = postsList.size();
@@ -73,7 +76,9 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
 
             // 安全地进行分页
             List<PostDTO> nowPageList = postsList.subList(start, end + 1);
-            return Result.ok(nowPageList, totalPage);
+            // 添加点赞信息
+            List<PostDTO> postLiked = isPostLiked(nowPageList);
+            return Result.ok(postLiked, totalPage);
         }
         //3.缓存为空,缓存重建
         savePost2Redis(Post_ALL_LIST_TTL);
@@ -161,7 +166,9 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
 
             // 安全地进行分页
             List<PostDTO> nowPageList = postsList.subList(start, end + 1);
-            return Result.ok(nowPageList, totalPage);
+            // 添加点赞信息
+            List<PostDTO> postLiked = isPostLiked(nowPageList);
+            return Result.ok(postLiked, totalPage);
         }
         //3.缓存为空,缓存重建
         savePost2Redis(Post_ALL_LIST_TTL);
@@ -232,8 +239,74 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
         }catch (Exception e){
             return Result.fail("用户未登录");
         }
-        update().setSql("`like` = `like` + 1").eq("id", postId).update();
-        return Result.ok("点赞成功");
+        //从redis中获取点赞对象
+        String key = POST_LIKE_KEY + postId;
+        Boolean isMember = stringRedisTemplate.opsForSet().isMember(key,userId.toString());
+
+        if(BooleanUtil.isFalse(isMember)){
+            // 没点赞 数据库点赞数+1 保存用户到Redis的set集合中
+            boolean isSuccess = update().setSql("`like` = `like` + 1").eq("id", postId).update();
+            if(isSuccess){
+                stringRedisTemplate.opsForSet().add(key,userId.toString());
+            }
+            savePost2Redis(Post_ALL_LIST_TTL);
+            return Result.ok("点赞成功");
+        }else{
+            // 已点赞 数据库点赞数-1 把用户从Redis的set集合中移除
+            boolean isSuccess = update().setSql("`like` = `like` - 1").eq("id", postId).update();
+            if(isSuccess){
+                stringRedisTemplate.opsForSet().remove(key,userId.toString());
+            }
+            savePost2Redis(Post_ALL_LIST_TTL);
+            return Result.ok("取消点赞成功");
+        }
+
+    }
+
+    @Override
+    public Result queryHotPostList(Integer current) {
+        int start = (current - 1) * DEFAULT_PAGE_SIZE;
+        int end = current * DEFAULT_PAGE_SIZE - 1;
+        //1.从redis查询帖子列表缓存
+        List<String> listCache = stringRedisTemplate.opsForList().range(POST_ALL_LIST_KEY, 0, -1);
+        //2.判断是否为空
+        if (listCache != null && !listCache.isEmpty()) {
+            //不为空，返回列表
+            List<PostDTO> postsList = listCache.stream()
+                    .map(str -> (PostDTO) JSONUtil.toBean(str, PostDTO.class, true))
+                    .sorted(Comparator.comparingLong(PostDTO::getLike).reversed())
+                    .collect(Collectors.toList());
+
+            Long totalPage = (long) Math.ceil((double) postsList.size() / DEFAULT_PAGE_SIZE);
+            // 检查分页索引，防止越界
+            int listSize = postsList.size();
+            start = Math.max(start, 0); // 确保开始索引不是负数
+            end = Math.min(end, listSize - 1); // 确保结束索引不超出列表大小
+
+            // 当开始索引超过列表大小时，返回空列表
+            if (start >= listSize) {
+                return Result.fail("超出页面请求范围");
+            }
+
+            // 安全地进行分页
+            List<PostDTO> nowPageList = postsList.subList(start, end + 1);
+            // 添加点赞信息
+            List<PostDTO> postLiked = isPostLiked(nowPageList);
+            return Result.ok(postLiked, totalPage);
+        }
+        //3.缓存为空,缓存重建
+        savePost2Redis(Post_ALL_LIST_TTL);
+        return queryAllPostList(current);
+    }
+    private List<PostDTO> isPostLiked(List<PostDTO> list){
+        Long userId = UserHolder.getUser().getId();
+
+        for(PostDTO postDTO : list){
+            String key = POST_LIKE_KEY + postDTO.getId();
+            Boolean isMember = stringRedisTemplate.opsForSet().isMember(key,userId.toString());
+            postDTO.setIsLike(BooleanUtil.isTrue(isMember));
+        }
+        return list;
     }
 }
 
