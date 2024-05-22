@@ -1,6 +1,8 @@
 package com.yanyan.dto;
 
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 
 import java.util.Objects;
@@ -9,6 +11,7 @@ import java.util.Objects;
 public class MajorCourseDTO {
     private Long majorId;
     private String majorName;
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long courseId;
     private String courseName;
     private String courseDescription;
