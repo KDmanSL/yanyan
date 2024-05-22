@@ -161,6 +161,9 @@ public class SchoolServiceImpl extends ServiceImpl<SchoolMapper, School>
 
     @Override
     public Result querySchoolByArea(Integer is211, String area, Integer current, Integer size) {
+        if(area.equals("全部")){
+            return queryAllSchoolList(is211, current, size);
+        }
         int start = (current - 1) * size;
         int end = current * size - 1;
         //1.从redis查询商铺列表缓存
