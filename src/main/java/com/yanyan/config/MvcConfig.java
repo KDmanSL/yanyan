@@ -2,6 +2,7 @@ package com.yanyan.config;
 
 
 import com.yanyan.utils.LoginInterceptor;
+import com.yanyan.utils.PermissionInterceptor;
 import com.yanyan.utils.RefreshTokenInterceptor;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Configuration;
@@ -24,5 +25,11 @@ public class MvcConfig implements WebMvcConfigurer {
 //                        "/user/register"
                 ).order(1);
         registry.addInterceptor(new RefreshTokenInterceptor(stringRedisTemplate)).order(0);
+        registry.addInterceptor(new PermissionInterceptor()).addPathPatterns(
+                "/user/permission/set",
+                "/user/delete",
+                "/user/list",
+                "/user/uv"
+        ).order(2); // 添加权限拦截器
     }
 }
