@@ -169,6 +169,7 @@ public class UserDetailServiceImpl extends ServiceImpl<UserDetailMapper, UserDet
         }
         return Result.ok(rank);
     }
+
 }
 
 

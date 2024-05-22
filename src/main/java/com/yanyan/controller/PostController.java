@@ -114,4 +114,11 @@ public class PostController {
     public Result hot(@RequestParam(value = "current", defaultValue = "1") Integer current) {
         return postService.queryHotPostList(current);
     }
+    /**
+     * 获取用户最热帖
+     */
+    @GetMapping("/myhot")
+    public Result myHot() {
+        return postService.queryMyHotPostList();
+    }
 }

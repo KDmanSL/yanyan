@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -53,7 +54,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
     public Result queryAllPostList(Integer current) {
         try {
             UserHolder.getUser().getId();
-        }catch (Exception e){
+        } catch (Exception e) {
             return Result.fail("用户未登录");
         }
 
@@ -156,7 +157,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
                     .filter(postDTO -> postDTO.getUserid().equals(userId))
                     .sorted(Comparator.comparing(PostDTO::getPostdate).reversed())
                     .collect(Collectors.toList());
-            if(postsList.isEmpty()){
+            if (postsList.isEmpty()) {
                 return Result.fail("该用户没有帖子");
             }
             Long totalPage = (long) Math.ceil((double) postsList.size() / DEFAULT_PAGE_SIZE);
@@ -219,7 +220,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
         try {
             user = UserHolder.getUser();
             userId = user.getId();
-        }catch (Exception e){
+        } catch (Exception e) {
             return Result.fail("用户未登录");
         }
         Post post = getById(postId);
@@ -242,26 +243,26 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
         Long userId;
         try {
             userId = UserHolder.getUser().getId();
-        }catch (Exception e){
+        } catch (Exception e) {
             return Result.fail("用户未登录");
         }
         //从redis中获取点赞对象
         String key = POST_LIKE_KEY + postId;
-        Boolean isMember = stringRedisTemplate.opsForSet().isMember(key,userId.toString());
+        Boolean isMember = stringRedisTemplate.opsForSet().isMember(key, userId.toString());
 
-        if(BooleanUtil.isFalse(isMember)){
+        if (BooleanUtil.isFalse(isMember)) {
             // 没点赞 数据库点赞数+1 保存用户到Redis的set集合中
             boolean isSuccess = update().setSql("`like` = `like` + 1").eq("id", postId).update();
-            if(isSuccess){
-                stringRedisTemplate.opsForSet().add(key,userId.toString());
+            if (isSuccess) {
+                stringRedisTemplate.opsForSet().add(key, userId.toString());
             }
             savePost2Redis(Post_ALL_LIST_TTL);
             return Result.ok("点赞成功");
-        }else{
+        } else {
             // 已点赞 数据库点赞数-1 把用户从Redis的set集合中移除
             boolean isSuccess = update().setSql("`like` = `like` - 1").eq("id", postId).update();
-            if(isSuccess){
-                stringRedisTemplate.opsForSet().remove(key,userId.toString());
+            if (isSuccess) {
+                stringRedisTemplate.opsForSet().remove(key, userId.toString());
             }
             savePost2Redis(Post_ALL_LIST_TTL);
             return Result.ok("取消点赞成功");
@@ -273,7 +274,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
     public Result queryHotPostList(Integer current) {
         try {
             UserHolder.getUser().getId();
-        }catch (Exception e){
+        } catch (Exception e) {
             return Result.fail("用户未登录");
         }
         int start = (current - 1) * DEFAULT_PAGE_SIZE;
@@ -309,12 +310,40 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
         savePost2Redis(Post_ALL_LIST_TTL);
         return queryAllPostList(current);
     }
-    private List<PostDTO> isPostLiked(List<PostDTO> list){
+
+    @Override
+    public Result queryMyHotPostList() {
+        Long userId;
+        try {
+            userId = UserHolder.getUser().getId();
+        } catch (Exception e) {
+            return Result.fail("用户未登录");
+        }
+        //1.从redis查询帖子列表缓存
+        List<String> listCache = stringRedisTemplate.opsForList().range(POST_ALL_LIST_KEY, 0, -1);
+        //2.判断是否为空
+        if (listCache != null && !listCache.isEmpty()) {
+            //不为空，返回列表
+            Optional<PostDTO> hottestPost = listCache.stream()
+                    .map(str -> (PostDTO) JSONUtil.toBean(str, PostDTO.class, true))
+                    .filter(postDTO -> postDTO.getUserid().equals(userId))
+                    .max(Comparator.comparingLong(PostDTO::getLike));
+
+            // 如果有多个帖子点赞数相同且最多，只会返回其中的一个
+            PostDTO highestRatedPost = hottestPost.orElse(null);
+            return Result.ok(highestRatedPost);
+        }
+        //3.缓存为空,缓存重建
+        savePost2Redis(Post_ALL_LIST_TTL);
+        return queryMyHotPostList();
+    }
+
+    private List<PostDTO> isPostLiked(List<PostDTO> list) {
         Long userId = UserHolder.getUser().getId();
 
-        for(PostDTO postDTO : list){
+        for (PostDTO postDTO : list) {
             String key = POST_LIKE_KEY + postDTO.getId();
-            Boolean isMember = stringRedisTemplate.opsForSet().isMember(key,userId.toString());
+            Boolean isMember = stringRedisTemplate.opsForSet().isMember(key, userId.toString());
             postDTO.setIsLike(BooleanUtil.isTrue(isMember));
         }
         return list;

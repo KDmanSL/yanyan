@@ -25,4 +25,6 @@ public interface PostService extends IService<Post> {
     Result addLike(Long postId);
 
     Result queryHotPostList(Integer current);
+
+    Result queryMyHotPostList();
 }
