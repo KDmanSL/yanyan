@@ -46,17 +46,21 @@ public class UserDetailServiceImpl extends ServiceImpl<UserDetailMapper, UserDet
         UserDetail userDetail = query().eq("userId", userId).one();
         String schoolName = null;
         String majorName = null;
+        Long majorId = null;
         if (userDetail.getSchoolid() != null) {
             schoolName = schoolService.querySchoolById(userDetail.getSchoolid()).getName();
         }
         if (userDetail.getMajorid() != null) {
-            majorName = majorService.queryMajorById(userDetail.getMajorid()).getName();
+            Major major = majorService.queryMajorById(userDetail.getMajorid());
+            majorId = major.getId();
+            majorName = major.getName();
         }
 
         UserDetailDTO userDetailDTO = new UserDetailDTO();
         userDetailDTO.setUserName(username);
         userDetailDTO.setImgUrl(imgUrl);
         userDetailDTO.setSchoolName(schoolName);
+        userDetailDTO.setMajorId(majorId);
         userDetailDTO.setMajorName(majorName);
         userDetailDTO.setScore(userDetail.getScore());
         userDetailDTO.setSession(userDetail.getSession());
