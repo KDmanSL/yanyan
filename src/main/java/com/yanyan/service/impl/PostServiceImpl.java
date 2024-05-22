@@ -51,6 +51,12 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
 
     @Override
     public Result queryAllPostList(Integer current) {
+        try {
+            UserHolder.getUser().getId();
+        }catch (Exception e){
+            return Result.fail("用户未登录");
+        }
+
         int start = (current - 1) * DEFAULT_PAGE_SIZE;
         int end = current * DEFAULT_PAGE_SIZE - 1;
         //1.从redis查询帖子列表缓存
@@ -265,6 +271,11 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
 
     @Override
     public Result queryHotPostList(Integer current) {
+        try {
+            UserHolder.getUser().getId();
+        }catch (Exception e){
+            return Result.fail("用户未登录");
+        }
         int start = (current - 1) * DEFAULT_PAGE_SIZE;
         int end = current * DEFAULT_PAGE_SIZE - 1;
         //1.从redis查询帖子列表缓存
