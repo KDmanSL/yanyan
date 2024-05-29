@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import static com.yanyan.utils.RedisConstants.*;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -177,7 +178,17 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course>
 
             // 安全地进行分页
             List<MajorCourseDTO> nowPageList = coursesList.subList(start, end + 1);
-            return Result.ok(nowPageList, totalPage);
+
+            List<CourseDetailDTO> courseDetailList = new ArrayList<>();
+            for (MajorCourseDTO majorCourseDTO : nowPageList) {
+                CourseDetailDTO courseDetailDTO = new CourseDetailDTO();
+                courseDetailDTO.setMajorCourseDTO(majorCourseDTO);
+                courseDetailDTO.setIsFavorite(userFavoritesService.isFavorite(majorCourseDTO.getCourseId()));
+                courseDetailList.add(courseDetailDTO);
+            }
+
+
+            return Result.ok(courseDetailList, totalPage);
         }
 
         // 缓存为空，则重建缓存
