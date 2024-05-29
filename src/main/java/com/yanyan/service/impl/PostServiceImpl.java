@@ -44,8 +44,6 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
     @Resource
     PostReplyMapper postReplyMapper;
     @Resource
-    private UserService userService;
-    @Resource
     private StringRedisTemplate stringRedisTemplate;
     @Resource
     private RedissonClient redissonClient;

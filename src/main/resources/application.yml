@@ -22,7 +22,7 @@ Spring:
     default-property-inclusion: non_null # JSON处理时忽略非空字段
   ai:
     openai:
-      api-key: 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
+      api-key: sk-proj-uH3zzbwzw5xTANBct7SvT3BlbkFJoTfuQO5Scc3gWPYiLC4w
   servlet:
     multipart:
       max-file-size: 50MB

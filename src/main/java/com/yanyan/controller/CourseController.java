@@ -4,7 +4,6 @@ import com.yanyan.dto.MajorCourseDTO;
 import com.yanyan.dto.Result;
 import com.yanyan.service.CourseService;
 import com.yanyan.service.UserFavoritesService;
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
