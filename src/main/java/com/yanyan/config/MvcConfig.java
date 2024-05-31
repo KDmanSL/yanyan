@@ -19,10 +19,10 @@ public class MvcConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new LoginInterceptor())
                 .excludePathPatterns(
-                        "/**"
-//                        "/user/login",
-//                        "/user/code",
-//                        "/user/register"
+//                        "/**"
+                        "/user/login",
+                        "/user/code",
+                        "/user/register"
                 ).order(1);
         registry.addInterceptor(new RefreshTokenInterceptor(stringRedisTemplate)).order(0);
         registry.addInterceptor(new PermissionInterceptor()).addPathPatterns(

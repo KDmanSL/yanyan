@@ -17,7 +17,7 @@ public abstract class RegexPatterns {
     /**
      * 帖子标题正则，1-20位的字符
      */
-    public static final String POST_TITLE_REGEX = "^.{1,20}$";
+    public static final String POST_TITLE_REGEX = "^.{1,50}$";
     /**
      * 帖子内容正则，1-1000位的字符
      */
