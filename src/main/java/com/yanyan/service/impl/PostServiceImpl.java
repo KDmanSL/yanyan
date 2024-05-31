@@ -221,7 +221,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
         } catch (Exception e) {
             return Result.fail("用户未登录");
         }
-        Post post = getById(postId);
+        Post post = postMapper.getPost(postId);
         if (post == null) {
             return Result.fail("帖子不存在");
         }

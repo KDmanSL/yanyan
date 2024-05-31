@@ -16,6 +16,7 @@ import java.util.List;
 */
 public interface PostMapper extends BaseMapper<Post> {
     List<PostDTO> selectPostWithUserInfo();
+    Post getPost(@Param("postId") Long postId);
 }
 
 

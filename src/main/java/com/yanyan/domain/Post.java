@@ -47,6 +47,7 @@ public class Post implements Serializable {
     /**
      * 点赞
      */
+    @TableField(value = "`key`")
     private Long like;
 
     @TableField(exist = false)
