@@ -33,3 +33,5 @@ logging:
 server:
   tomcat:
     max-swallow-size: 100MB
+web:
+  upload-path: /root/yanyan/images/

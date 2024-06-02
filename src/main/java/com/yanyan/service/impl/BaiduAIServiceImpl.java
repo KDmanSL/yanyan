@@ -11,6 +11,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.connection.stream.*;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -36,7 +37,8 @@ public class BaiduAIServiceImpl implements BaiduAIService {
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
-
+    @Value("${web.upload-path}")
+    private String uploadPath;
     private ConcurrentHashMap<String, CompletableFuture<String>> futures = new ConcurrentHashMap<>();
 
     private static final DefaultRedisScript<Long> SECKILL_SCRIPT;
@@ -65,7 +67,7 @@ public class BaiduAIServiceImpl implements BaiduAIService {
             String originalFileName = multipartFile.getOriginalFilename();
             String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
             String storedFileName = UUID.randomUUID().toString(true) + fileExtension;
-            Path destinationFile = Paths.get("src/main/resources/static/images", storedFileName).toAbsolutePath().normalize();
+            Path destinationFile = Paths.get(uploadPath, storedFileName).toAbsolutePath().normalize();
 
             multipartFile.transferTo(destinationFile);
 
