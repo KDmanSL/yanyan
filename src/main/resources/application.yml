@@ -3,26 +3,26 @@ Spring:
     name: 研研网
   datasource: # mysql配置
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://119.3.158.9:3306/yanyan?useSSL=false&useUnicode=true&allowPublicKeyRetrieval=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
-    username: yanyan
-    password: yanyan
+    url: jdbc:mysql://xxxx:3306/yanyan?useSSL=false&useUnicode=true&allowPublicKeyRetrieval=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: #username
+    password: #password
     type: com.alibaba.druid.pool.DruidDataSource
   data: # redis配置
     redis:
-      host: 119.3.158.9
-      password: redis
+      host: #redis服务器地址
+      password: #redis服务器root账户密码
       lettuce:
         pool:
           max-active: 20
           max-idle: 20
           min-idle: 1
           time-between-eviction-runs: 10s
-      database: 4
+      database: 4 #数据库
   jackson:
     default-property-inclusion: non_null # JSON处理时忽略非空字段
   ai:
     openai:
-      api-key: sk-proj-uH3zzbwzw5xTANBct7SvT3BlbkFJoTfuQO5Scc3gWPYiLC4w
+      api-key: #chatgpt api-key
   servlet:
     multipart:
       max-file-size: 50MB
